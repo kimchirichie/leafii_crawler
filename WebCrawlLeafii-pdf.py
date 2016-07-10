@@ -2,7 +2,7 @@ import urllib2
 import PyPDF2
 import urllib
 from cStringIO import StringIO
-
+import requests
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
@@ -33,11 +33,10 @@ def parse_start():
 
 
 def get_pdf_content(url, page_nums=[0]):
-
     resume = urllib.URLopener()
-    #name = url + ".pdf"
     try:
-        resume.retrieve(url, "resume.pdf")
+        r  = requests.get(url)
+        resume.retrieve(r.url, "resume.pdf")
         content =""
 
         rsrcmgr = PDFResourceManager()
@@ -65,8 +64,77 @@ def get_pdf_content(url, page_nums=[0]):
         #   content += pdf.getPage(page_num).extractText()
         lstSkills = find_skills(text)
         return lstSkills
+
     except:
-        return ""
+        pass
+
+    try:
+        url = url[:7] + "www." + url[7:]
+        resume.retrieve(url, "resume.pdf")
+        content = ""
+
+        rsrcmgr = PDFResourceManager()
+        retstr = StringIO()
+        codec = 'utf-8'
+        laparams = LAParams()
+        device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+        pdf = file("resume.pdf", 'rb')
+        interpreter = PDFPageInterpreter(rsrcmgr, device)
+        password = ""
+        maxpages = 1
+        caching = True
+        pagenos = set()
+
+        for page in PDFPage.get_pages(pdf, pagenos, maxpages=maxpages, password=password, caching=caching,
+                                      check_extractable=True):
+            interpreter.process_page(page)
+
+        text = retstr.getvalue()
+        text = text.lower()
+
+        # p = file("resume.pdf", "rb")
+        # pdf = PyPDF2.PdfFileReader(p)
+        # for page_num in page_nums:
+        #   content += pdf.getPage(page_num).extractText()
+        lstSkills = find_skills(text)
+        return lstSkills
+
+    except:
+        pass
+
+    try:
+        url = url[:7] + url[10:]
+        resume.retrieve(url, "resume.pdf")
+        content = ""
+
+        rsrcmgr = PDFResourceManager()
+        retstr = StringIO()
+        codec = 'utf-8'
+        laparams = LAParams()
+        device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+        pdf = file("resume.pdf", 'rb')
+        interpreter = PDFPageInterpreter(rsrcmgr, device)
+        password = ""
+        maxpages = 1
+        caching = True
+        pagenos = set()
+
+        for page in PDFPage.get_pages(pdf, pagenos, maxpages=maxpages, password=password, caching=caching,
+                                      check_extractable=True):
+            interpreter.process_page(page)
+
+        text = retstr.getvalue()
+        text = text.lower()
+
+        # p = file("resume.pdf", "rb")
+        # pdf = PyPDF2.PdfFileReader(p)
+        # for page_num in page_nums:
+        #   content += pdf.getPage(page_num).extractText()
+        lstSkills = find_skills(text)
+        return lstSkills
+
+    except:
+        ""
 
 
 def find_pdf(str, urlStr):
@@ -88,44 +156,23 @@ def find_pdf(str, urlStr):
                     ("h" == str[pivotPoint - counter - 3])):
                 pdfURL = str[pivotPoint - counter + 3:pivotPoint + 4]
 
-
                 if not pdfURL.find(temp_urlStr) == -1:
-                    if pdfURL.find("www.") == -1:
-                        pdfURL = pdfURL[:7] + "www." + pdfURL[7:]
-                        return pdfURL
-                    else:
-                        return pdfURL
+                    return pdfURL
 
                 if not pdfURL.find("http") == -1:
-                    if pdfURL.find("www.") == -1:
-                        pdfURL = pdfURL[:7] + "www." + pdfURL[7:]
-                        return pdfURL
-                    else:
-                        return pdfURL
+                    return pdfURL
 
                 if not pdfURL.find(".com") == -1:
-                    if pdfURL.find("www.") == -1:
-                        pdfURL = pdfURL[:7] + "www." + pdfURL[7:]
-                        return pdfURL
-                    else:
-                        return pdfURL
+                    return pdfURL
 
                 if not pdfURL.find(".org") == -1:
-                    if pdfURL.find("www.") == -1:
-                        pdfURL = pdfURL[:7] + "www." + pdfURL[7:]
-                        return pdfURL
-                    else:
-                        return pdfURL
+                    return pdfURL
 
                 else:
                     urlStr = urlStr.replace("\r", "")
                     urlStr = urlStr.replace("\n", "")
                     pdfURL = urlStr + "/" + pdfURL
-                    if pdfURL.find("www.") == -1:
-                        pdfURL = pdfURL[:7] + "www." + pdfURL[7:]
-                        return pdfURL
-                    else:
-                        return pdfURL
+                    return pdfURL
             else:
                 counter += 1
     else:
@@ -307,7 +354,7 @@ def get_html(url):
     # except:
     # return "error"
 
-#get_html("http://www.akenneweg.com")
+#get_pdf_content("http://www.graham-robertson.ca/resume.pdf")
 
 parse_start()
 #pdf_to_txt("resume.pdf")
