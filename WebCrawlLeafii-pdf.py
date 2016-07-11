@@ -1,5 +1,4 @@
 import urllib2
-import PyPDF2
 import urllib
 from cStringIO import StringIO
 import requests
@@ -7,11 +6,7 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
-
-Framework = 0
-
-
-# WORK ON GRABBIG THE .PDF FILES!!!
+import datetime
 
 def parse_start():
     keywords = ""
@@ -25,11 +20,11 @@ def parse_start():
 
                 keywords = get_html(website)
                 # print keywords
-                print website
+                print "website", website
             else:
                 loop = False
         except:
-            print website
+            print "website", website
 
 
 def get_pdf_content(url, page_nums=[0]):
@@ -267,17 +262,25 @@ def title_find(titleStr):
                 titleStr.find("personalized computer user") != -1):
         keywords = keywords + ["PC User"]
     if (titleStr.find("skeleton") != -1):
-        # versionNum = titleStr[titleStr.find("skeleton") + 9:titleStr.find("skeleton") + 14]
-        # print (titleStr[titleStr.find("skeleton") + 9:titleStr.find("skeleton") + 14])
         keywords = keywords + ["Skeleton"]
     if (titleStr.find("javascript") != -1):
         keywords = keywords + ["Javascript"]
     if (titleStr.find("angular") != -1):
-        keywords = keywords + ["Frameworks Used: Angular"]
+        keywords = keywords + ["Angular"]
     if (titleStr.find("bootstrap") != -1):
         keywords = keywords + ["Bootstrap"]
     if (titleStr.find("jquery") != -1):
         keywords = keywords + ["Jquery"]
+    if (titleStr.find("linux") != -1):
+        keywords = keywords + ["Linux"]
+    if (titleStr.find("unix") != -1):
+        keywords = keywords + ["Unix"]
+    if (titleStr.find("ubuntu") != -1):
+        keywords = keywords + ["Ubuntu"]
+    if (titleStr.find("mac") != -1):
+        keywords = keywords + ["Mac"]
+    if (titleStr.find("windows") != -1):
+        keywords = keywords + ["Windows"]
 
     return keywords
 
@@ -350,11 +353,12 @@ def get_html(url):
     print "Degree ", keywords_degree
     print "Skills ", keywords_skills
     print "Pdf    ", pdf_url
-    print "pdf con", pdfSkills
+    print "Pdf con", pdfSkills
+    print "Date   ", datetime.datetime.utcnow()
     # except:
     # return "error"
 
 #get_pdf_content("http://www.graham-robertson.ca/resume.pdf")
 
 parse_start()
-#pdf_to_txt("resume.pdf")
+#get_pdf_content("resume.pdf")
