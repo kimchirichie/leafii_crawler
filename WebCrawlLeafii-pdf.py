@@ -7,24 +7,25 @@ from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
 import datetime
+import pymongo
+
 
 def parse_start():
     keywords = ""
     url_file = open("URLs.txt", "r")
     loop = True
     # type(url_file.readline())
-    while loop == True:
+    while loop:
         website = url_file.readline()
         try:
-            if (website != ""):
-
+            if website != "":
                 keywords = get_html(website)
                 # print keywords
                 print "website", website
             else:
                 loop = False
         except:
-            print "website", website
+            print "ERROR ", website, "\n"
 
 
 def get_pdf_content(url, page_nums=[0]):
@@ -64,7 +65,7 @@ def get_pdf_content(url, page_nums=[0]):
         pass
 
     try:
-        url = url[:7] + "www." + url[7:]
+        url = url[:7] + "www." + url[7:] #######################Try request
         resume.retrieve(url, "resume.pdf")
         content = ""
 
@@ -144,7 +145,7 @@ def find_pdf(str, urlStr):
         temp_urlStr = urlStr
         temp_urlStr = temp_urlStr.replace("\r", "")
         temp_urlStr = temp_urlStr.replace("\n", "")
-        while loop == True:
+        while loop:
             if (("f" == str[pivotPoint - counter]) and
                     ("e" == str[pivotPoint - counter - 1]) and
                     ("r" == str[pivotPoint - counter - 2]) and
@@ -251,7 +252,7 @@ def search_meta_keywords(keywordStr):
         keyword_contents = keyword_contents + [temp_keywords.replace("\"", "")]
         return keyword_contents
     else:
-        return
+        return keyword_contents
 
 
 def title_find(titleStr):
@@ -314,51 +315,63 @@ def pdf_to_txt(path):
 
 
 def get_html(url):
-    # keywords_title = 0
-    usock = urllib2.urlopen(url)
-    html = usock.read()
-    lowerCase_html = html.lower()
+    try:
+        # keywords_title = 0
+        #print url
+        if not "http://" in url == False:
+            url = "http://" + url
+            #print url
+        #url = requests.get(url)
+        #print url
+        usock = urllib2.urlopen(url)
+        html = usock.read()
+        lowerCase_html = html.lower()
 
-    # Head tag
-    titleTag = lowerCase_html.find("<head>")
-    end_titleTag = lowerCase_html.find("</head>")
-    keywords_title = title_find(lowerCase_html[titleTag + 6:end_titleTag])
+        # Head tag
+        titleTag = lowerCase_html.find("<head>")
+        end_titleTag = lowerCase_html.find("</head>")
+        keywords_title = title_find(lowerCase_html[titleTag + 6:end_titleTag])
 
-    # Meta Tags
-    keywords_meta = search_meta_keywords(lowerCase_html)
+        # Meta Tags
+        keywords_meta = search_meta_keywords(lowerCase_html)
 
-    # Body Education
-    bodyTag = lowerCase_html.find("<body>")
-    end_bodyTag = lowerCase_html.find("</body>")
-    # print lowerCase_html[bodyTag + 6:end_bodyTag]
-    # print ("computer science" in lowerCase_html[bodyTag + 6:end_bodyTag])
-    keywords_degree = find_degree(lowerCase_html[bodyTag + 6:end_bodyTag])
+        # Body Education
+        bodyTag = lowerCase_html.find("<body>")
+        end_bodyTag = lowerCase_html.find("</body>")
+        # print lowerCase_html[bodyTag + 6:end_bodyTag]
+        # print ("computer science" in lowerCase_html[bodyTag + 6:end_bodyTag])
+        keywords_degree = find_degree(lowerCase_html[bodyTag + 6:end_bodyTag])
 
-    # Skills
-    keywords_skills = find_skills(lowerCase_html[bodyTag + 6:end_bodyTag])
+        # Skills
+        keywords_skills = find_skills(lowerCase_html[bodyTag + 6:end_bodyTag])
 
-    usock.close()
+        usock.close()
 
-    # PDFS
-    pdf_url = find_pdf(html, url)
-    pdfSkills = []
-    if(pdf_url == False):
-        pdf_url = []
-    else:
-        pdfSkills = get_pdf_content(pdf_url)
+        # PDFS
+        pdf_url = find_pdf(html, url)
+        pdfSkills = []
+        if(pdf_url == False):
+            pdf_url = []
+        else:
+            pdfSkills = get_pdf_content(pdf_url)
 
-    # print html
-    print "Title  ", keywords_title
-    print "Meta   ", keywords_meta
-    print "Degree ", keywords_degree
-    print "Skills ", keywords_skills
-    print "Pdf    ", pdf_url
-    print "Pdf con", pdfSkills
-    print "Date   ", datetime.datetime.utcnow()
-    # except:
-    # return "error"
+        # print html
+        #print "Title  ", keywords_title
+        #print "Meta   ", keywords_meta
+        #print "Degree ", keywords_degree
+        #print "Skills ", keywords_skills
+        #print "Pdf    ", pdf_url
+        #print "Pdf con", pdfSkills
+        #print "Date   ", datetime.datetime.utcnow()
 
-#get_pdf_content("http://www.graham-robertson.ca/resume.pdf")
+        keywords = keywords_title + keywords_meta + keywords_degree + keywords_skills + pdfSkills
+        # except:
+        # return "error"
+        return keywords
+    except:
+        return []
 
-parse_start()
+#get_html("http://richardsin.com")
+
+#parse_start()
 #get_pdf_content("resume.pdf")
