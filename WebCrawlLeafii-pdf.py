@@ -130,7 +130,7 @@ def get_pdf_content(url, page_nums=[0]):
         return lstSkills
 
     except:
-        ""
+        return []
 
 
 def find_pdf(str, urlStr):
@@ -249,7 +249,9 @@ def search_meta_keywords(keywordStr):
         starting_k_contents = keywordStr.find("meta name=\"keywords\" ") + 30
         ending_k_contents = keywordStr.find(">", starting_k_contents)
         temp_keywords = keywordStr[starting_k_contents:ending_k_contents - 2]
-        keyword_contents = keyword_contents + [temp_keywords.replace("\"", "")]
+        temp_keywords = temp_keywords.replace("\"","")
+        temp_keywords = temp_keywords.split(",")
+        keyword_contents = keyword_contents + temp_keywords
         return keyword_contents
     else:
         return keyword_contents
@@ -313,14 +315,36 @@ def pdf_to_txt(path):
     #print text
     return text
 
+def get_pdf(url):
+    try:
+        if not "http://" in url == False:
+            url = "http://" + url
+            #print url
+        #url = requests.get(url)
+        #print url
+        usock = urllib2.urlopen(url)
+        html = usock.read()
+
+        # PDFS
+        pdf_url = find_pdf(html, url)
+        pdfSkills = []
+        if (pdf_url == False):
+            pdf_url = []
+        else:
+            pdfSkills = get_pdf_content(pdf_url)
+
+        return pdfSkills
+    except:
+        return []
+
 
 def get_html(url):
     try:
         # keywords_title = 0
         #print url
-        if not "http://" in url == False:
+        if url.find("http://") == -1:
             url = "http://" + url
-            #print url
+            print url
         #url = requests.get(url)
         #print url
         usock = urllib2.urlopen(url)
@@ -331,6 +355,7 @@ def get_html(url):
         titleTag = lowerCase_html.find("<head>")
         end_titleTag = lowerCase_html.find("</head>")
         keywords_title = title_find(lowerCase_html[titleTag + 6:end_titleTag])
+        #print keywords_title
 
         # Meta Tags
         keywords_meta = search_meta_keywords(lowerCase_html)
@@ -347,14 +372,6 @@ def get_html(url):
 
         usock.close()
 
-        # PDFS
-        pdf_url = find_pdf(html, url)
-        pdfSkills = []
-        if(pdf_url == False):
-            pdf_url = []
-        else:
-            pdfSkills = get_pdf_content(pdf_url)
-
         # print html
         #print "Title  ", keywords_title
         #print "Meta   ", keywords_meta
@@ -364,14 +381,16 @@ def get_html(url):
         #print "Pdf con", pdfSkills
         #print "Date   ", datetime.datetime.utcnow()
 
-        keywords = keywords_title + keywords_meta + keywords_degree + keywords_skills + pdfSkills
+        keywords = keywords_title + keywords_meta + keywords_degree + keywords_skills
         # except:
         # return "error"
+        #print keywords
         return keywords
     except:
         return []
 
-#get_html("http://richardsin.com")
+#get_html("http://yljiang.github.io")
+
 
 #parse_start()
 #get_pdf_content("resume.pdf")
