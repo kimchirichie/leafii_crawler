@@ -344,7 +344,7 @@ def get_html(url):
         #print url
         if url.find("http://") == -1:
             url = "http://" + url
-            print url
+            #print url
         #url = requests.get(url)
         #print url
         usock = urllib2.urlopen(url)
