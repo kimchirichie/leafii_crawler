@@ -26,7 +26,7 @@ for i in range(len(data)):
 
 			key_db = {"keywords": tags[k], "url": url_temp, "user_id": id_temp, "pdf": "False"}
 
-			print key_db
+			#print key_db
 
 			key_dict_id = key_dict.insert_one(key_db).inserted_id
 
