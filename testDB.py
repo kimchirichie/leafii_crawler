@@ -1,49 +1,55 @@
 from pymongo import MongoClient
-import datetime
-#import pprint
-#import string
 from WebCrawlLeafiipdf import get_html, get_pdf
 
+# define our DB, collection
 client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 
 db = client.meteor
+
 data = []
 
-for i in  db.users.find():
-	data = data + [i]
-	#print i
-#print data[0]
+# data is user data from user collection.
+# we will be uploading our keywords to
+# keywords collection.
+for i in db.users.find():
+    data = data + [i]
+
+# Now, data[0] is data for 1st user.
+
+# our collection is called keywords
 key_dict = db.keywords
 
 print "Running through data now"
 for i in range(len(data)):
-		data_temp = data[i]
-		url_temp = (data_temp.get("profile").get("url"))
-		print ("Running through:" + url_temp)
-		id_temp = (data_temp.get("_id"))
-		tags = get_html(url_temp)
-		tagsPDF = get_pdf(url_temp)
+    data_temp = data[i]
 
-		for k in range(len(tags)):
+    # obtain url and id from user data
 
-			print ("Keywords Website:" + url_temp)
+    url_temp = (data_temp.get("profile").get("url"))
+    print ("Running through:" + url_temp)
+    id_temp = (data_temp.get("_id"))
 
-			key_db = {"keywords": tags[k], "url": url_temp, "user_id": id_temp, "pdf": "False"}
+    # there will be 2 types of html,
+    # from website, and from pdf
 
+    tags = get_html(url_temp) # this is keywords from the html
+    tagsPDF = get_pdf(url_temp) # this is keywords from the pdf
 
-			key_dict_id = key_dict.insert_one(key_db).inserted_id
+    # update the mongoDB with html keywords, with another id generated
 
-			#print (key_dict_id)
+    for k in range(len(tags)):
+        print ("Keywords Website:" + url_temp)
 
-		for j in range(len(tagsPDF)):
-			print ("Keywords PDF:" + url_temp)
-			key_db = {"keywords": tagsPDF[j], "url": url_temp, "user_id": id_temp, "pdf": "True"}
+        key_db = {"keywords": tags[k], "url": url_temp, "user_id": id_temp, "pdf": "False"}
 
-			#print key_db
+        key_dict_id = key_dict.insert_one(key_db).inserted_id
 
-			key_dict_id = key_dict.insert_one(key_db).inserted_id
+    # update the mongoDB with pdf keywords, with another id generated
 
-			#print (key_dict_id)
+    for j in range(len(tagsPDF)):
+        print ("Keywords PDF:" + url_temp)
+        key_db = {"keywords": tagsPDF[j], "url": url_temp, "user_id": id_temp, "pdf": "True"}
 
+        # print key_db
 
-
+        key_dict_id = key_dict.insert_one(key_db).inserted_id
