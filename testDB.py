@@ -43,6 +43,7 @@ for i in range(len(data)):
         for l in range(len(seperateTags)):
             key_db = {"Keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
             print key_db
+
             key_dict_id = key_dict.insert_one(key_db).inserted_id
 
     # update the mongoDB with pdf keywords, with another id generated
@@ -53,6 +54,5 @@ for i in range(len(data)):
         for h in range(len(seperateTagspdf)):
             key_db = {"Keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
             print key_db
-            # print key_db
 
             key_dict_id = key_dict.insert_one(key_db).inserted_id

@@ -468,7 +468,7 @@ def get_html(url):
         keywords = keywords_title + keywords_meta + keywords_degree + keywords_skills
         # except:
         # return "error"
-        # print keywords
+        #print keywords
         return keywords
 
     # Return an empty array, if there
