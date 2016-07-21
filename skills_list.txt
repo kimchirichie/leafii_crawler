@@ -94,12 +94,11 @@ Systems Software
 Team Building
 Team Oriented
 Teamwork
-Tech Skills Listed by Job
 Tech Support
 Technical
 Technology
 Technical Services
-Tech Skills Listed by Job
+Tech Skills
 Technical Support
 Technical Writing
 Testing
@@ -111,7 +110,7 @@ Troubleshooting
 UI
 UX
 User Experience Design
-Virtualization
+Virtual
 Web
 Web Development
 Web Design

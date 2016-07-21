@@ -481,6 +481,6 @@ def get_html(url):
         # /#####################################/#
 
 
-get_html("http://yljiang.github.io/")
+#get_html("http://yljiang.github.io/")
 #get_html("http://richardsin.com")
 #get_pdf_content("resume.pdf")
