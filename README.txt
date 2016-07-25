@@ -26,3 +26,4 @@ Instructions on Parser:
 6. Your database should have the keywords inputted in now, and you're good to go.
 
 For more information, or bugs please contact us @:
+support@leafii.com
