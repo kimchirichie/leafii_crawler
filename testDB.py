@@ -54,7 +54,7 @@ for i in range(len(data)):
         # print ("Keywords Website:" + url_temp)
         seperateTags = tags[k].split(" ")
         for l in range(len(seperateTags)):
-            key_db = {"Keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
+            key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
             print key_db
 
             key_dict_id = key_dict.insert_one(key_db).inserted_id
@@ -65,7 +65,7 @@ for i in range(len(data)):
         # print ("Keywords PDF:" + url_temp)
         seperateTagspdf = tagsPDF[j].split(" ")
         for h in range(len(seperateTagspdf)):
-            key_db = {"Keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
+            key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
             print key_db
 
             key_dict_id = key_dict.insert_one(key_db).inserted_id
@@ -75,4 +75,4 @@ for i in range(len(data)):
 
 print bcolors.OKGREEN + ("Took %s seconds total" % (time.time() - start_time)) + bcolors.ENDC
 print bcolors.OKGREEN + "Went through " + str(len(data)) + " web pages" + bcolors.ENDC
-print bcolors.OKGREEN + "generated " + str(db.keywords_coll.count()) + " keywords" + bcolors.ENDC
+print bcolors.OKGREEN + "Generated " + str(db.keywords_coll.count()) + " keywords" + bcolors.ENDC
