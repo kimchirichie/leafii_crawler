@@ -12,6 +12,13 @@ client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 
 db = client.meteor
 
+class bcolors:
+    HEAD = '\033[95m'
+    OKGREEN = '\033[92m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    OKBLUE = '\033[94m'
+
 # Download the .pdf resume and parse it
 def get_pdf_content(url, page_nums=[0]):
     resume = urllib.URLopener()
@@ -132,7 +139,7 @@ def get_pdf_content(url, page_nums=[0]):
     # we were unable to retrieve any
     # information from your resume
     except:
-        print "Error in get_pdf_content"
+        print bcolors.FAIL + "Error in get_pdf_content, double check pdf link" + bcolors.ENDC
         return []
 
 
@@ -370,7 +377,7 @@ def title_find(titleStr):
 def get_pdf(url):
 
     # try to get keywords from this function
-    # if pdf was not found in the http, it will give us []
+    # if pdf was not found in the html, it will give us []
 
     try:
         if not "http://" in url == False:
@@ -385,6 +392,7 @@ def get_pdf(url):
 
         # if pdf was not found, (== False)
         if pdf_url == False:
+            print bcolors.OKBLUE + "pdf was not found in this site" + bcolors.ENDC
             pdf_url = []
 
         else:
@@ -393,6 +401,7 @@ def get_pdf(url):
         return pdfSkills
 
     except:
+        print bcolors.FAIL + "Error in Main func, get_pdf(). Check all the functions inside." + bcolors.ENDC
         return []
 
 
@@ -410,7 +419,7 @@ def get_html(url):
         # "http://" to the url
         if url.find("http://") == -1:
             url = "http://" + url
-        print url
+        # print url
         # url = requests.get(url)
         # print url
 
@@ -474,7 +483,7 @@ def get_html(url):
     # Return an empty array, if there
     # is an error
     except:
-        print "Error in get_html"
+        print bcolors.FAIL + "Error in Main func, get_html(). Check all the functions inside." + bcolors.ENDC
         return []
 
         # Testing Purposes
