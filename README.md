@@ -23,7 +23,7 @@ $ source ./bin/activate
 Install the required modules
 
 ```
-$ pip install -r requirements.txt
+$ sudo pip install -r requirements.txt
 ```
 
 ### How to use API:
