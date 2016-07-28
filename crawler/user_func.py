@@ -252,16 +252,16 @@ def re_parse_all()
 
 			print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
 			return true
-			
+
 	except:
 		print "ERROR: Wipe and Parse Failed"
 		return false
 
 def find_user_by_name
 	
-	return user_info(user_id)
+	return true
 
 def find_user_by_email
 	
-	return user_info(user_id)
+	return true
 
