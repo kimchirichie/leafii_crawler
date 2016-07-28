@@ -19,9 +19,7 @@ def user_info(user_id)
 
 def parse_user_site(user_id)
 	try:
-		delete_user_keywords(user_id)
-
-				# define our DB, collection
+		# define our DB, collection
 		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 
 		db = client.meteor
@@ -84,7 +82,7 @@ def parse_user_site(user_id)
 			return true
 
 	except:
-		print "Can't find user"
+		print "Can't parse user"
 		return false
 
 def parse_all_users()
@@ -162,18 +160,17 @@ def parse_all_users()
 
 def delete_user_keywords(user_id)
 	try:
-		# adds all of a user's keywords to users_keywords
+		# adds all of a user's keywords to user_keywords to return the old list of user's keywords
 		user_keywords = []
 		for i in range(len(key_dict))
 			if user_id in key_dict[i]
-				user_keywords.append(key_dict[i])
+				user_keywords = user_keywords + [key_dict[i]]
 
 		#deletes existing user data
 		result = key_dict.delete_many({"user_id": user_id})
-        print result "entries deleted"
         return user_keywords
 	except:
-		print "Can't delete keyword"
+		print "Can't delete keywords from user"
 
 def delete_all_keywords()
 	try:
@@ -190,68 +187,8 @@ def re_parse_all()
 	try:
 		#wipes existing keywords
 		delete_all_keywords()
-
-		# define our DB, collection
-		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-
-		db = client.meteor
-
-		data = []
-
-		# data is user data from user collection.
-		# we will be uploading our keywords to
-		# keywords collection.
-		for i in db.users.find():
-			data = data + [i]
-
-		# Now, data[0] is data for 1st user.
-
-		# our collection is called keywords
-		key_dict = db.keywords_coll
-
-		print bcolors.HEAD + "========= REPARSING DATA=========" + bcolors.ENDC + "\n"
-		print bcolors.OKBLUE + "run this program once to initialize MongoDB" + bcolors.ENDC
-		print bcolors.OKBLUE + "operating multiple times will result in duplicating data" + bcolors.ENDC + '\n'
-
-		for i in range(len(data)):
-			data_temp = data[i]
-
-			# obtain url and id from user data
-
-			url_temp = (data_temp.get("profile").get("url"))
-			print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
-			id_temp = (data_temp.get("_id"))
-
-			# there will be 2 types of html,
-			# from website, and from pdf
-
-			tags = get_html(url_temp) # this is keywords from the html
-			tagsPDF = get_pdf(url_temp) # this is keywords from the pdf
-
-			# update the mongoDB with html keywords, with another id generated
-
-			for k in range(len(tags)):
-				# print ("Keywords Website:" + url_temp)
-				seperateTags = tags[k].split(" ")
-				for l in range(len(seperateTags)):
-					key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
-					print key_db
-
-					key_dict_id = key_dict.insert_one(key_db).inserted_id
-
-			# update the mongoDB with pdf keywords, with another id generated
-
-			for j in range(len(tagsPDF)):
-				# print ("Keywords PDF:" + url_temp)
-				seperateTagspdf = tagsPDF[j].split(" ")
-				for h in range(len(seperateTagspdf)):
-					key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
-					print key_db
-
-					key_dict_id = key_dict.insert_one(key_db).inserted_id
-
-			print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
-			return true
+		#parse all users
+		parse_all_users()
 
 	except:
 		print "ERROR: Wipe and Parse Failed"
