@@ -314,13 +314,17 @@ def search_meta_keywords(keywordStr):
 
 		# find where the meta tags end, (position)
 		ending_k_contents = keywordStr.find(">", starting_k_contents)
-
+		
 		temp_keywords = keywordStr[starting_k_contents:ending_k_contents - 2]
-
+		
 		# replace and fix some of the formatting
 		temp_keywords = temp_keywords.replace("\"","")
-		temp_keywords = temp_keywords.split(",") # now temp_keywords are junks of keywords.
 		temp_keywords = temp_keywords.replace(" ", "")
+		print temp_keywords
+		temp_keywords = temp_keywords.split(",") # now temp_keywords are junks of keywords.
+		
+
+		print temp_keywords
 		keyword_contents = keyword_contents + temp_keywords
 		return keyword_contents
 
@@ -442,7 +446,7 @@ def get_html(url):
 		keywords_title = title_find(lowerCase_html[titleTag + 6:end_titleTag])
 
 		#print keywords_title
-
+		
 		# Meta Tags
 		keywords_meta = search_meta_keywords(lowerCase_html)
 
