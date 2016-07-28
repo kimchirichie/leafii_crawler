@@ -319,8 +319,8 @@ def search_meta_keywords(keywordStr):
 
         # replace and fix some of the formatting
         temp_keywords = temp_keywords.replace("\"","")
-        temp_keywords = temp_keywords.replace(" ", "")
-        temp_keywords = temp_keywords.split(",")  # now temp_keywords are junks of keywords.
+        temp_keywords = temp_keywords.replace(",", " ")
+        temp_keywords = temp_keywords.split(" ")  # now temp_keywords are junks of keywords.
         keyword_contents = keyword_contents + temp_keywords
         return keyword_contents
 
@@ -373,9 +373,7 @@ def title_find(titleStr):
         keywords = keywords + ["Windows"]
     return keywords
 
-
 def get_pdf(url):
-
     # try to get keywords from this function
     # if pdf was not found in the html, it will give us []
 
@@ -383,7 +381,8 @@ def get_pdf(url):
         if not "http://" in url == False:
             url = "http://" + url
 
-        usock = urllib2.urlopen(url)
+        usock = urllib2.urlopen(url, timeout=5)
+
         html = usock.read()
 
         # obtain pdf_url from find_pdf function
@@ -431,7 +430,9 @@ def get_html(url):
 
         # Grab the url, using the
         # urllib2 package
-        usock = urllib2.urlopen(url)
+        print bcolors.OKBLUE + "waiting for the website..." + bcolors.ENDC
+        usock = urllib2.urlopen(url, timeout=5)
+
 
         # Read in the html, via read()
         html = usock.read()
@@ -481,7 +482,7 @@ def get_html(url):
             print bcolors.FAIL + "Error in find_skills" + bcolors.ENDC
             keywords_skills = []
 
-        #print keywords_skills
+        #print "Keyword Skills:
 
         usock.close()
 
