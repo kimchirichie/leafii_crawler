@@ -81,6 +81,7 @@ def parse()
 		return false
 
 def find_user_by_email(email)
+	#returns a user's info with their email
 	try:
 		connect()
 		return db.users.findOne({"emails.0.address": email })
@@ -90,6 +91,7 @@ def find_user_by_email(email)
 		return false
 
 def find_user_by_name(name)
+	#returns a list of all user's who have the input name as their first or last name
 	try:
 		connect()
 		for i in db.users.find():
