@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from WebCrawlLeafiipdf import get_html, get_pdf
 import time
 
+
 start_time = time.time()
 
 class bcolors:
@@ -46,43 +47,54 @@ for i in range(len(data)):
     # from website, and from pdf
 
     tags_temp = get_html(url_temp) # this is keywords from the html
+    # print tags_temp
     tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
+    # print tagsPDF_temp
 
-    seen=set()
+    seen = set()
     tags = []
     tagsPDF = []
 
-    for item in set(tags_temp):
+    for item in tags_temp:
         if item not in seen:
             seen.add(item)
             tags.append(item)
+            # print "seen:", seen
+            # print "tags:", tags, "\n"
 
-    for item in set(tagsPDF_temp):
+    for item in tagsPDF_temp:
         if item not in seen:
             seen.add(item)
             tagsPDF.append(item)
+            # print "seen:", seen
+            # print "tags:", tagsPDF, "\n"
 
     # update the mongoDB with html keywords, with another id generated
-
+    seen2 = set()
     for k in range(len(tags)):
-        # print ("Keywords Website:" + url_temp)
+        #print ("Keywords Website:" + url_temp)
         seperateTags = tags[k].split(" ")
         for l in range(len(seperateTags)):
-            key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
-            print key_db
+            if seperateTags[l] not in seen2:
+                seen2.add(seperateTags[l])
+                key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
+                print key_db
+                # print seen2
 
-            key_dict_id = key_dict.insert_one(key_db).inserted_id
+                key_dict_id = key_dict.insert_one(key_db).inserted_id
 
     # update the mongoDB with pdf keywords, with another id generated
 
     for j in range(len(tagsPDF)):
-        # print ("Keywords PDF:" + url_temp)
+        #print ("Keywords PDF:" + url_temp)
         seperateTagspdf = tagsPDF[j].split(" ")
         for h in range(len(seperateTagspdf)):
-            key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
-            print key_db
+            if seperateTagspdf[h] not in seen2:
+                seen2.add(seperateTagspdf[h])
+                key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
+                print key_db
 
-            key_dict_id = key_dict.insert_one(key_db).inserted_id
+                key_dict_id = key_dict.insert_one(key_db).inserted_id
 
     print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
 
