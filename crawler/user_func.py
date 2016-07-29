@@ -101,6 +101,17 @@ def parse():
 	except:
 		print("ERROR: Cannot parse data")
 		return false
+		
+def find_user_by_id(user_id):
+	#returns a user's info with their id
+	try:
+		connect()
+
+		return db.users.findOne({"user_id": user_id})
+	
+	except:
+		print("ERROR: Cannot find user")
+		return false
 
 def find_user_by_email(email):
 	#returns a user's info with their email
