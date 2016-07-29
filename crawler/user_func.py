@@ -1,13 +1,14 @@
 from pymongo import MongoClient
 from WebCrawlLeafiipdf import get_html, get_pdf
 import time
+import re
 
 class bcolors:
-	HEAD = '\033[95m'
-	OKGREEN = '\033[92m'
-	FAIL = '\033[91m'
-	ENDC = '\033[0m'
-	OKBLUE = '\033[94m'
+    HEAD = '\033[95m'
+    OKGREEN = '\033[92m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    OKBLUE = '\033[94m'
 
 def connect()
 	#connects to database
@@ -28,48 +29,69 @@ def connect()
 def parse()
 	#parses through the data array
 	try:
-		print bcolors.HEAD + "========= STARTING INITIAL PARSE =========" + bcolors.ENDC + "\n"
-		print bcolors.OKBLUE + "run this program once to initialize MongoDB" + bcolors.ENDC
-		print bcolors.OKBLUE + "operating multiple times will result in duplicating data" + bcolors.ENDC + '\n'
-
 		for i in range(len(data)):
-			data_temp = data[i]
+		    data_temp = data[i]
 
-			# obtain url and id from user data
+		    # obtain url and id from user data
 
-			url_temp = (data_temp.get("profile").get("url"))
-			print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
-			id_temp = (data_temp.get("_id"))
+		    url_temp = (data_temp.get("profile").get("url"))
+		    print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
+		    id_temp = (data_temp.get("_id"))
 
-			# there will be 2 types of html,
-			# from website, and from pdf
+		    # there will be 2 types of html,
+		    # from website, and from pdf
 
-			tags = get_html(url_temp) # this is keywords from the html
-			tagsPDF = get_pdf(url_temp) # this is keywords from the pdf
+		    tags_temp = get_html(url_temp) # this is keywords from the html
+		    # print tags_temp
+		    tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
+		    # print tagsPDF_temp
 
-			# update the mongoDB with html keywords, with another id generated
+		    seen = set()
+		    tags = []
+		    tagsPDF = []
 
-			for k in range(len(tags)):
-				# print ("Keywords Website:" + url_temp)
-				seperateTags = tags[k].split(" ")
-				for l in range(len(seperateTags)):
-					key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
-					print key_db
+		    for item in tags_temp:
+		        if item not in seen:
+		            seen.add(item)
+		            tags.append(item)
+		            # print "seen:", seen
+		            # print "tags:", tags, "\n"
 
-					key_dict_id = key_dict.insert_one(key_db).inserted_id
+		    for item in tagsPDF_temp:
+		        if item not in seen:
+		            seen.add(item)
+		            tagsPDF.append(item)
+		            # print "seen:", seen
+		            # print "tags:", tagsPDF, "\n"
 
-			# update the mongoDB with pdf keywords, with another id generated
+		    # update the mongoDB with html keywords, with another id generated
+		    seen2 = set()
+		    for k in range(len(tags)):
+		        #print ("Keywords Website:" + url_temp)
+		        seperateTags = tags[k].split(" ")
+		        for l in range(len(seperateTags)):
+		            if seperateTags[l] not in seen2:
+		                seen2.add(seperateTags[l])
+		                key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
+		                print key_db
+		                # print seen2
 
-			for j in range(len(tagsPDF)):
-				# print ("Keywords PDF:" + url_temp)
-				seperateTagspdf = tagsPDF[j].split(" ")
-				for h in range(len(seperateTagspdf)):
-					key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
-					print key_db
+		                key_dict_id = key_dict.insert_one(key_db).inserted_id
 
-					key_dict_id = key_dict.insert_one(key_db).inserted_id
+		    # update the mongoDB with pdf keywords, with another id generated
 
-			print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
+		    for j in range(len(tagsPDF)):
+		        #print ("Keywords PDF:" + url_temp)
+		        seperateTagspdf = tagsPDF[j].split(" ")
+		        for h in range(len(seperateTagspdf)):
+		            if seperateTagspdf[h] not in seen2:
+		                seen2.add(seperateTagspdf[h])
+		                key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
+		                print key_db
+
+		                key_dict_id = key_dict.insert_one(key_db).inserted_id
+
+		    print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
 
 
 		print bcolors.OKGREEN + ("Took %s seconds total" % (time.time() - start_time)) + bcolors.ENDC
@@ -94,13 +116,38 @@ def find_user_by_name(name)
 	#returns a list of all user's who have the input name as their first or last name
 	try:
 		connect()
+
 		for i in db.users.find():
 			data = data + [i]
+
+		#seperates string into array of words	
+		temp_name = re.findall(r'\w+', name)
+		
 		user_list = []
-		for i in range(len(data)):
-			if name in data[i].get("profile").get("firstName") or name in data[i].get("profile").get("lastName")  
-				user_list = user_list + data[i]
+
+		if len(temp_name) = 1:
+			#searches for name in the first and last names of people in the profile
+			for i in range(len(data)):
+				if name in data[i].get("profile").get("firstName") or name in data[i].get("profile").get("lastName"):  
+					user_list = user_list + data[i]
+
+		elif len(temp_name) = 2:
+			#searches for the full name with exact match
+			temp_firstName = temp_name[0]
+			temp_lastName = temp_name[1]
+			for i in range(len(data)):
+				if temp_firstName in data[i].get("profile").get("firstName") and temp_lastName in data[i].get("profile").get("lastName"):  
+					user_list = user_list + data[i] 
+
+		elif len(temp_name) > 2:
+			#if more than three words are in name search, checks each word against first and last name 
+			for i in range(len(data)):
+				for c in range(len(temp_name)):
+					if temp_name[c] in data[i].get("profile").get("firstName") or temp_name[c] in data[i].get("profile").get("lastName"):
+						user_list = user_list + data[i]
+
 		return user_list
+		
 	except:
 		print("ERROR: Cannot find user")
 		return false
@@ -147,7 +194,7 @@ def parse_all_users()
 		return true
 
 	except:
-		print("ERROR: Can't parse users")
+		print("ERROR: Can't parse all users")
 		return false
 
 def delete_user_keywords(user_id)
