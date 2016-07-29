@@ -99,10 +99,6 @@ def parse():
 		print bcolors.OKGREEN + "Generated " + str(db.keywords_coll.count()) + " keywords" + bcolors.ENDC
 
 	except:
-<<<<<<< HEAD
-		print("ERROR: Cannot parse data")
-		return false
-=======
 		print "ERROR: Cannot parse data"
 		return False
 
@@ -116,7 +112,6 @@ def find_user_by_id(user_id):
 	except:
 		print "ERROR: Cannot find user"
 		return False
->>>>>>> 6ea03ba179695f329be752a59450b2ceb7aeb827
 
 def find_user_by_email(email):
 	#returns a user's info with their email
@@ -125,13 +120,8 @@ def find_user_by_email(email):
 		return db.users.findOne({"emails.0.address": email })
 	
 	except:
-<<<<<<< HEAD
-		print("ERROR: Cannot find user")
-		return false
-=======
 		print "ERROR: Cannot find user"
 		return False
->>>>>>> 6ea03ba179695f329be752a59450b2ceb7aeb827
 
 def find_user_by_name(name):
 	#returns a list of all user's who have the input name as their first or last name
@@ -170,13 +160,8 @@ def find_user_by_name(name):
 		return user_list
 
 	except:
-<<<<<<< HEAD
-		print("ERROR: Cannot find user")
-		return false
-=======
 		print "ERROR: Cannot find user"
 		return False
->>>>>>> 6ea03ba179695f329be752a59450b2ceb7aeb827
 
 def parse_user_site(user_id):
 	#parses through a user's site 
@@ -197,13 +182,8 @@ def parse_user_site(user_id):
 		return true
 
 	except:
-<<<<<<< HEAD
-		print("ERROR: Can't parse user")
-		return false
-=======
 		print "ERROR: Can't parse user"
 		return False
->>>>>>> 6ea03ba179695f329be752a59450b2ceb7aeb827
 
 def parse_all_users():
 	#parses through all the users' sites
@@ -225,13 +205,8 @@ def parse_all_users():
 		return true
 
 	except:
-<<<<<<< HEAD
-		print("ERROR: Can't parse all users")
-		return false
-=======
 		print "ERROR: Can't parse all users"
 		return False
->>>>>>> 6ea03ba179695f329be752a59450b2ceb7aeb827
 
 def delete_user_keywords(user_id):
 	#deletes all of a single user's keywords
@@ -258,21 +233,12 @@ def delete_all_keywords():
 		key_dict = db.keywords_coll
 		#deletes existing data
 		result = key_dict.delete_many({})
-<<<<<<< HEAD
-		print("Entries Deleted")
-		return true
-
-	except:
-		print("ERROR: Can't delete keyword from all users")
-		return false
-=======
 		print "Entries Deleted"
 		return True
 
 	except:
 		print "ERROR: Can't delete keyword from all users"
 		return False
->>>>>>> 6ea03ba179695f329be752a59450b2ceb7aeb827
 
 def re_parse_all():
 	#deletes existing keywords and reparses through them all
@@ -285,10 +251,4 @@ def re_parse_all():
 
 	except:
 		print("ERROR: Reparsing Failed")
-<<<<<<< HEAD
-		return false
-
-
-=======
 		return False
->>>>>>> 6ea03ba179695f329be752a59450b2ceb7aeb827
