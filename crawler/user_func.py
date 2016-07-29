@@ -10,7 +10,7 @@ class bcolors:
     ENDC = '\033[0m'
     OKBLUE = '\033[94m'
 
-def connect()
+def connect():
 	#connects to database
 	try:
 		#Measure start time
@@ -26,7 +26,7 @@ def connect()
 		print("ERROR: Cannot connect to database")
 		return false
 
-def parse()
+def parse():
 	#parses through the data array
 	try:
 		for i in range(len(data)):
@@ -102,7 +102,7 @@ def parse()
 		print("ERROR: Cannot parse data")
 		return false
 
-def find_user_by_email(email)
+def find_user_by_email(email):
 	#returns a user's info with their email
 	try:
 		connect()
@@ -112,7 +112,7 @@ def find_user_by_email(email)
 		print("ERROR: Cannot find user")
 		return false
 
-def find_user_by_name(name)
+def find_user_by_name(name):
 	#returns a list of all user's who have the input name as their first or last name
 	try:
 		connect()
@@ -125,13 +125,13 @@ def find_user_by_name(name)
 		
 		user_list = []
 
-		if len(temp_name) = 1:
+		if len(temp_name) == 1:
 			#searches for name in the first and last names of people in the profile
 			for i in range(len(data)):
 				if name in data[i].get("profile").get("firstName") or name in data[i].get("profile").get("lastName"):  
 					user_list = user_list + data[i]
 
-		elif len(temp_name) = 2:
+		elif len(temp_name) == 2:
 			#searches for the full name with exact match
 			temp_firstName = temp_name[0]
 			temp_lastName = temp_name[1]
@@ -147,12 +147,12 @@ def find_user_by_name(name)
 						user_list = user_list + data[i]
 
 		return user_list
-		
+
 	except:
 		print("ERROR: Cannot find user")
 		return false
 
-def parse_user_site(user_id)
+def parse_user_site(user_id):
 	#parses through a user's site 
 	try:
 		connect()
@@ -174,7 +174,7 @@ def parse_user_site(user_id)
 		print("ERROR: Can't parse user")
 		return false
 
-def parse_all_users()
+def parse_all_users():
 	#parses through all the users' sites
 	try:
 		connect()
@@ -197,7 +197,7 @@ def parse_all_users()
 		print("ERROR: Can't parse all users")
 		return false
 
-def delete_user_keywords(user_id)
+def delete_user_keywords(user_id):
 	#deletes all of a single user's keywords
 	try:
 		connect()
@@ -205,31 +205,31 @@ def delete_user_keywords(user_id)
 
 		# adds all of a user's keywords to user_keywords to return the old list of user's keywords
 		user_keywords = []
-		for i in range(len(key_dict))
-			if user_id in key_dict[i]
+		for i in range(len(key_dict)):
+			if user_id in key_dict[i]:
 				user_keywords = user_keywords + [key_dict[i]]
 
 		#deletes existing user data
 		result = key_dict.delete_many({"user_id": user_id})
-        return user_keywords
+		return user_keywords
 	except:
 		print("ERROR: Can't delete keywords from user")
 
-def delete_all_keywords()
+def delete_all_keywords():
 	#deletes all keywords of all users
 	try:
 		connect()
 		key_dict = db.keywords_coll
 		#deletes existing data
 		result = key_dict.delete_many({})
-        print("Entries deleted")
-        return true
+		print("Entries Deleted")
+		return true
 
 	except:
 		print("ERROR: Can't delete keyword from all users")
 		return false
 
-def re_parse_all()
+def re_parse_all():
 	#deletes existing keywords and reparses through them all
 	try:
 		connect()
