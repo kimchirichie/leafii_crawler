@@ -242,4 +242,3 @@ def re_parse_all():
 		print("ERROR: Reparsing Failed")
 		return false
 
-
