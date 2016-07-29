@@ -11,96 +11,84 @@ class bcolors:
     OKBLUE = '\033[94m'
 
 def connect():
-	#connects to database
-	try:
-		#Measure start time
-		start_time = time.time()
-		# define our DB, collection
-		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+	start_time = time.time()
 
-		db = client.meteor
+	# define our DB, collection
+	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 
-		data = []
+	db = client.meteor
 
-	except: 
-		print "ERROR: Cannot connect to database"
-		return False
+	data = []
 
 def parse():
-	#parses through the data array
-	try:
-		for i in range(len(data)):
-		    data_temp = data[i]
+	for i in range(len(data)):
+	    data_temp = data[i]
 
-		    # obtain url and id from user data
+	    # obtain url and id from user data
 
-		    url_temp = (data_temp.get("profile").get("url"))
-		    print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
-		    id_temp = (data_temp.get("_id"))
+	    url_temp = (data_temp.get("profile").get("url"))
+	    print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
+	    id_temp = (data_temp.get("_id"))
 
-		    # there will be 2 types of html,
-		    # from website, and from pdf
+	    # there will be 2 types of html,
+	    # from website, and from pdf
 
-		    tags_temp = get_html(url_temp) # this is keywords from the html
-		    # print tags_temp
-		    tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
-		    # print tagsPDF_temp
+	    tags_temp = get_html(url_temp) # this is keywords from the html
+	    # print tags_temp
+	    tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
+	    # print tagsPDF_temp
 
-		    seen = set()
-		    tags = []
-		    tagsPDF = []
+	    seen = set()
+	    tags = []
+	    tagsPDF = []
 
-		    for item in tags_temp:
-		        if item not in seen:
-		            seen.add(item)
-		            tags.append(item)
-		            # print "seen:", seen
-		            # print "tags:", tags, "\n"
+	    for item in tags_temp:
+	        if item not in seen:
+	            seen.add(item)
+	            tags.append(item)
+	            # print "seen:", seen
+	            # print "tags:", tags, "\n"
 
-		    for item in tagsPDF_temp:
-		        if item not in seen:
-		            seen.add(item)
-		            tagsPDF.append(item)
-		            # print "seen:", seen
-		            # print "tags:", tagsPDF, "\n"
+	    for item in tagsPDF_temp:
+	        if item not in seen:
+	            seen.add(item)
+	            tagsPDF.append(item)
+	            # print "seen:", seen
+	            # print "tags:", tagsPDF, "\n"
 
-		    # update the mongoDB with html keywords, with another id generated
-		    seen2 = set()
-		    for k in range(len(tags)):
-		        #print ("Keywords Website:" + url_temp)
-		        seperateTags = tags[k].split(" ")
-		        for l in range(len(seperateTags)):
-		            if seperateTags[l] not in seen2:
-		                seen2.add(seperateTags[l])
-		                key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
-		                print key_db
-		                # print seen2
+	    # update the mongoDB with html keywords, with another id generated
+	    seen2 = set()
+	    for k in range(len(tags)):
+	        #print ("Keywords Website:" + url_temp)
+	        seperateTags = tags[k].split(" ")
+	        for l in range(len(seperateTags)):
+	            if seperateTags[l] not in seen2:
+	                seen2.add(seperateTags[l])
+	                key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
+	                print key_db
+	                # print seen2
 
-		                key_dict_id = key_dict.insert_one(key_db).inserted_id
+	                key_dict_id = key_dict.insert_one(key_db).inserted_id
 
-		    # update the mongoDB with pdf keywords, with another id generated
+	    # update the mongoDB with pdf keywords, with another id generated
 
-		    for j in range(len(tagsPDF)):
-		        #print ("Keywords PDF:" + url_temp)
-		        seperateTagspdf = tagsPDF[j].split(" ")
-		        for h in range(len(seperateTagspdf)):
-		            if seperateTagspdf[h] not in seen2:
-		                seen2.add(seperateTagspdf[h])
-		                key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
-		                print key_db
+	    for j in range(len(tagsPDF)):
+	        #print ("Keywords PDF:" + url_temp)
+	        seperateTagspdf = tagsPDF[j].split(" ")
+	        for h in range(len(seperateTagspdf)):
+	            if seperateTagspdf[h] not in seen2:
+	                seen2.add(seperateTagspdf[h])
+	                key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
+	                print key_db
 
-		                key_dict_id = key_dict.insert_one(key_db).inserted_id
+	                key_dict_id = key_dict.insert_one(key_db).inserted_id
 
-		    print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
+	    print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
 
 
-		print bcolors.OKGREEN + ("Took %s seconds total" % (time.time() - start_time)) + bcolors.ENDC
-		print bcolors.OKGREEN + "Went through " + str(len(data)) + " web pages" + bcolors.ENDC
-		print bcolors.OKGREEN + "Generated " + str(db.keywords_coll.count()) + " keywords" + bcolors.ENDC
-
-	except:
-		print "ERROR: Cannot parse data"
-		return False
+	print bcolors.OKGREEN + ("Took %s seconds total" % (time.time() - start_time)) + bcolors.ENDC
+	print bcolors.OKGREEN + "Went through " + str(len(data)) + " web pages" + bcolors.ENDC
+	print bcolors.OKGREEN + "Generated " + str(db.keywords_coll.count()) + " keywords" + bcolors.ENDC
 
 def find_user_by_id(user_id):
 	#returns a user's info with their id
