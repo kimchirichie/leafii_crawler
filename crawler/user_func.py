@@ -125,6 +125,7 @@ def find_user_by_name(name):
 		
 		user_list = []
 
+		#changes search parameters based on number of words in search
 		if len(temp_name) == 1:
 			#searches for name in the first and last names of people in the profile
 			for i in range(len(data)):
