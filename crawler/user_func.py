@@ -24,7 +24,7 @@ def connect():
 
 	except: 
 		print("ERROR: Cannot connect to database")
-		return False
+		return false
 
 def parse():
 	#parses through the data array
@@ -100,18 +100,7 @@ def parse():
 
 	except:
 		print("ERROR: Cannot parse data")
-		return False
-
-def find_user_by_id(user_id):
-	#returns a user's info with their id
-	try:
-		connect()
-
-		return db.users.findOne({"user_id": user_id})
-	
-	except:
-		print("ERROR: Cannot find user")
-		return False
+		return false
 
 def find_user_by_email(email):
 	#returns a user's info with their email
@@ -121,7 +110,7 @@ def find_user_by_email(email):
 	
 	except:
 		print("ERROR: Cannot find user")
-		return False
+		return false
 
 def find_user_by_name(name):
 	#returns a list of all user's who have the input name as their first or last name
@@ -136,7 +125,6 @@ def find_user_by_name(name):
 		
 		user_list = []
 
-		#changes search parameters based on number of words in search
 		if len(temp_name) == 1:
 			#searches for name in the first and last names of people in the profile
 			for i in range(len(data)):
@@ -162,7 +150,7 @@ def find_user_by_name(name):
 
 	except:
 		print("ERROR: Cannot find user")
-		return False
+		return false
 
 def parse_user_site(user_id):
 	#parses through a user's site 
@@ -180,11 +168,11 @@ def parse_user_site(user_id):
 		# our collection is called keywords
 		key_dict = db.keywords_coll
 		parse()
-		return True
+		return true
 
 	except:
 		print("ERROR: Can't parse user")
-		return False
+		return false
 
 def parse_all_users():
 	#parses through all the users' sites
@@ -203,11 +191,11 @@ def parse_all_users():
 		key_dict = db.keywords_coll
 
 		parse()
-		return True
+		return true
 
 	except:
 		print("ERROR: Can't parse all users")
-		return False
+		return false
 
 def delete_user_keywords(user_id):
 	#deletes all of a single user's keywords
@@ -235,11 +223,11 @@ def delete_all_keywords():
 		#deletes existing data
 		result = key_dict.delete_many({})
 		print("Entries Deleted")
-		return True
+		return true
 
 	except:
 		print("ERROR: Can't delete keyword from all users")
-		return False
+		return false
 
 def re_parse_all():
 	#deletes existing keywords and reparses through them all
@@ -252,7 +240,6 @@ def re_parse_all():
 
 	except:
 		print("ERROR: Reparsing Failed")
-		return False
+		return false
 
-delete_all_keywords()
 
