@@ -10,16 +10,6 @@ class bcolors:
     ENDC = '\033[0m'
     OKBLUE = '\033[94m'
 
-def connect():
-	start_time = time.time()
-
-	# define our DB, collection
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-
-	db = client.meteor
-
-	data = []
-
 def parse():
 	for i in range(len(data)):
 	    data_temp = data[i]
@@ -90,66 +80,100 @@ def parse():
 	print bcolors.OKGREEN + "Went through " + str(len(data)) + " web pages" + bcolors.ENDC
 	print bcolors.OKGREEN + "Generated " + str(db.keywords_coll.count()) + " keywords" + bcolors.ENDC
 
+#working
 def find_user_by_id(user_id):
 	#returns a user's info with their id
 	try:
-		connect()
+		start_time = time.time()
+		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+		db = client.meteor
+		data = []
 
-		return db.users.findOne({"user_id": user_id})
+		for i in db.users.find():
+			data = data + [i]
+
+		
+		for i in range(len(data)):
+			if data[i].get("_id") == user_id:
+				print "Found"
+				print data[i]
+				return data[i]
+		
 	
-	except:
-		print "ERROR: Cannot find user"
+	except Exception, e:
+		print e
 		return False
 
 def find_user_by_email(email):
 	#returns a user's info with their email
 	try:
-		connect()
-		return db.users.findOne({"emails.0.address": email })
-	
-	except:
-		print "ERROR: Cannot find user"
+		start_time = time.time()
+		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+		db = client.meteor
+		data = []
+
+		for i in db.users.find():
+			data = data + [i]
+
+		for i in range(len(data)):
+			temp_email = data[0].get("emails")
+			if temp_email[0].get("address") == email:
+				print "Found"
+				print data[i]
+				return data[i]	
+	except Exception, e:
+		print e
 		return False
+
 
 def find_user_by_name(name):
 	#returns a list of all user's who have the input name as their first or last name
 	try:
-		connect()
+		start_time = time.time()
+		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+		db = client.meteor
+		data = []
 
 		for i in db.users.find():
 			data = data + [i]
 
 		#seperates string into array of words	
 		temp_name = re.findall(r'\w+', name)
-		
+		#temp_name_list = []
 		user_list = []
-
 		#changes search parameters based on number of words in search
 		if len(temp_name) == 1:
 			#searches for name in the first and last names of people in the profile
 			for i in range(len(data)):
-				if name in data[i].get("profile").get("firstName") or name in data[i].get("profile").get("lastName"):  
-					user_list = user_list + data[i]
+				temp_profile = data[i].get("profile")
+				#print temp_profile.get("firstName")
+				if name in temp_profile.get("firstName") or name in temp_profile.get("lastName") :
+					#print temp_profile
+					user_list = user_list + [temp_profile]
 
 		elif len(temp_name) == 2:
 			#searches for the full name with exact match
 			temp_firstName = temp_name[0]
 			temp_lastName = temp_name[1]
 			for i in range(len(data)):
-				if temp_firstName in data[i].get("profile").get("firstName") and temp_lastName in data[i].get("profile").get("lastName"):  
-					user_list = user_list + data[i] 
+				temp_profile = data[i].get("profile")
+				if temp_firstName in temp_profile.get("firstName") and temp_lastName in temp_profile.get("lastName"):  
+					user_list = user_list + [temp_profile]
 
 		elif len(temp_name) > 2:
 			#if more than three words are in name search, checks each word against first and last name 
 			for i in range(len(data)):
 				for c in range(len(temp_name)):
-					if temp_name[c] in data[i].get("profile").get("firstName") or temp_name[c] in data[i].get("profile").get("lastName"):
-						user_list = user_list + data[i]
-
+					temp_profile = data[i].get("profile")
+					if temp_name[c] in temp_profile.get("firstName") or temp_name[c] in temp_profile.get("lastName"):
+						user_list = user_list + [temp_profile]
+						
+		for i in range(len(user_list)):
+			print user_list[i]
 		return user_list
 
-	except:
-		print "ERROR: Cannot find user"
+	except Exception, e:
+		print e
 		return False
 
 def parse_user_site(user_id):
@@ -241,3 +265,7 @@ def re_parse_all():
 	except:
 		print("ERROR: Reparsing Failed")
 		return False
+
+
+
+find_user_by_name("Richard Sin Abhijeet Ayu")
