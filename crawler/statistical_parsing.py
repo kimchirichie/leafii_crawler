@@ -67,26 +67,44 @@ def increment_word(word):
 
 #def count_words(word):
 
-#def count_total_words():
+def count_total_words():
+	start_time = time.time()
+	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+	db = client.meteor
+	key_dict = db.word_count
+	data = []	
 
-#def count_distinct_words():
+	for i in db.word_count.find():
+		data = data + [i]
 
-#def average_count():
+	counter = 0
+	for i in range(len(data)):
+		counter += data[i].get("total")
 
-#def std_count():
+	print counter
+	return counter
 
-#def calulate_keywords()
+def count_distinct_words():
+	start_time = time.time()
+	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+	db = client.meteor
+	key_dict = db.word_count
+	data = []	
 
+	for i in db.word_count.find():
+		data = data + [i]
 
-start_time = time.time()
-client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-db = client.meteor
-key_dict = db.word_count
-data = []
-#db.createCollection("word_count")
+	counter = 0
+	for i in range(len(data)):
+		if data[i].get("total") > 0:
+			counter += 1
 
-for i in db.word_count.find():
-	data = data + [i]
+	print counter
+	return counter
 
-for i in range(len(data)):
-	print data[i]
+def average_count():
+	total = float(count_total_words()) 
+	distinct = float(count_distinct_words())
+	print total / distinct
+	return total / distinct
+

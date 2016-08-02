@@ -348,12 +348,3 @@ def re_parse_all():
 		print e
 		return False
 
-start_time = time.time()
-client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-db = client.meteor
-data = []
-
-for i in db.word_count.find():
-	data = data + [i]
-
-print data 
