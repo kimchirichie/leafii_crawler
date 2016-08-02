@@ -62,6 +62,8 @@ def find_user_by_name(name):
 		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 		db = client.meteor
 		data = []
+		
+		name = name.lower()
 
 		for i in db.users.find():
 			data = data + [i]
@@ -76,7 +78,7 @@ def find_user_by_name(name):
 			for i in range(len(data)):
 				temp_profile = data[i].get("profile")
 				#print temp_profile.get("firstName")
-				if name in temp_profile.get("firstName") or name in temp_profile.get("lastName") :
+				if name in temp_profile.get("firstName").lower() or name in temp_profile.get("lastName").lower() :
 					#print temp_profile
 					user_list = user_list + [data[i]]
 
@@ -86,7 +88,7 @@ def find_user_by_name(name):
 			temp_lastName = temp_name[1]
 			for i in range(len(data)):
 				temp_profile = data[i].get("profile")
-				if temp_firstName in temp_profile.get("firstName") and temp_lastName in temp_profile.get("lastName"):  
+				if temp_firstName in temp_profile.get("firstName").lower() and temp_lastName in temp_profile.get("lastName").lower():  
 					user_list = user_list + [data[i]]
 
 		elif len(temp_name) > 2:
@@ -94,7 +96,7 @@ def find_user_by_name(name):
 			for i in range(len(data)):
 				for c in range(len(temp_name)):
 					temp_profile = data[i].get("profile")
-					if temp_name[c] in temp_profile.get("firstName") or temp_name[c] in temp_profile.get("lastName"):
+					if temp_name[c] in temp_profile.get("firstName").lower() or temp_name[c] in temp_profile.get("lastName").lower():
 						user_list = user_list + [data[i]]
 
 
@@ -347,3 +349,5 @@ def re_parse_all():
 	except Exception, e:
 		print e
 		return False
+
+find_user_by_name("RiCHard")
