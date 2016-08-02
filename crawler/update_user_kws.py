@@ -6,9 +6,9 @@ try:
 	userID = sys.argv[1]
 	delete = delete_user_keywords(userID)
 	parse = parse_user_site(userID)
-	if delete == None and parse == False:
+	if delete == False and parse == False:
 		raise Exception('ERROR: Delete and Parse operations failed!')
-	if delete == None:
+	if delete == False:
 		raise Exception('ERROR: Delete operation failed!')
 	if parse == False:
 		raise Exception('ERROR: Parse operation failed!')
