@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from WebCrawlLeafiipdf import get_html, get_pdf
 import time
 from collections import Counter
+import numpy
 
 def get_all_urls():
 	start_time = time.time()
@@ -107,4 +108,22 @@ def average_count():
 	distinct = float(count_distinct_words())
 	print total / distinct
 	return total / distinct
+
+def std_count():
+	start_time = time.time()
+	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+	db = client.meteor
+	key_dict = db.word_count
+	data = []	
+
+	for i in db.word_count.find():
+		data = data + [i]
+
+	count_list = []
+	for i in range(len(data)):
+		count_list.append(data[i].get("total"))
+
+	print count_list
+	print numpy.std(count_list)
+	return numpy.std(count_list)
 
