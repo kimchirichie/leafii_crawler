@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from WebCrawlLeafiipdf import get_html, get_pdf
+from crawler import get_html, get_pdf
 import time
 
 
