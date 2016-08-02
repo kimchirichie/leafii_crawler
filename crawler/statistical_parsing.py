@@ -127,3 +127,5 @@ def std_count():
 	print numpy.std(count_list)
 	return numpy.std(count_list)
 
+def calculate_keywords():
+	
