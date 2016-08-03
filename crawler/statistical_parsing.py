@@ -5,6 +5,11 @@ from collections import Counter
 import numpy
 
 def get_all_urls():
+	"""
+	() --> list
+
+	Returns a list of all the urls users have submitted.
+	"""
 	start_time = time.time()
 	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 	db = client.meteor
@@ -21,6 +26,11 @@ def get_all_urls():
 	return url_list
 
 def insert_word(word):
+	"""
+	(word) --> boolean
+
+	Inserts a word into the database with a count of zero, and returns true, unless it already exists, in which case it returns false.
+	"""
 	start_time = time.time()
 	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 	db = client.meteor
@@ -42,6 +52,11 @@ def insert_word(word):
 		return False
 	
 def increment_word(word):
+	"""
+	(word) --> integer
+
+	Adds one to the total number of a word unless it doesn't exist in the database, in which case it adds it, with an initial count of 1, returning an integer of it's count.
+	"""
 	start_time = time.time()
 	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 	db = client.meteor
@@ -66,17 +81,12 @@ def increment_word(word):
 				db.word_count.update({ "word": word}, {"word": word, "total": temp_count})  
 		return temp_count
 
-def count_words(url):
-	start_time = time.time()
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-	db = client.meteor
-	url_list = []
-	data = []
-
-	for i in db.users.find():
-		data = data + [i]
-
 def count_total_words():
+	"""
+	() --> integer
+
+	Counts the total number of words in the database and returns an integer value.
+	"""
 	start_time = time.time()
 	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 	db = client.meteor
@@ -94,6 +104,11 @@ def count_total_words():
 	return counter
 
 def count_distinct_words():
+	"""
+	() --> integer
+
+	Counts the number of distinct words in the database which have appeared at least once, and returns an integer value.
+	"""
 	start_time = time.time()
 	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 	db = client.meteor
@@ -112,12 +127,26 @@ def count_distinct_words():
 	return counter
 
 def average_count():
-	total = float(count_total_words()) 
-	distinct = float(count_distinct_words())
-	print total / distinct
-	return total / distinct
+	"""
+	() --> integer
 
+	Calculates the average number of repititions a words has in the database and returns an integer value.
+	"""
+	print "total:"
+	total = float(count_total_words()) 
+	print "distinct:"
+	distinct = count_distinct_words()
+	print "average:"
+	average = total / distinct
+	print average
+	return average
+	
 def std_count():
+	"""
+	() --> integer
+
+	Calculates the standard deviation of the number of repititions a words has in the database and returns an integer value.
+	"""
 	start_time = time.time()
 	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 	db = client.meteor
@@ -131,11 +160,16 @@ def std_count():
 	for i in range(len(data)):
 		count_list.append(data[i].get("total"))
 
-	print count_list
 	print numpy.std(count_list)
 	return numpy.std(count_list)
 
 def order_keywords():
+	"""
+	() --> list
+
+	Returns a list of all the keywords in the database which have appeared at least once, 
+	in descending order of their repitions, displaying both the keywords and the number of times they've appeared.
+	"""
 	start_time = time.time()
 	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 	db = client.meteor
@@ -169,5 +203,3 @@ def order_keywords():
 
 	for i in sorted_list:
 		print i[0] + ": " + str(i[1])
-
-#def calculate_keywords(total_words):

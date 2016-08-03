@@ -49,7 +49,7 @@ $ python crawler/testDB.py
 ```
 get_all_urls()
 ```
-Returns a list of all the urls users have submitted
+Returns a list of all the urls users have submitted.
 
 ```
 insert_word(str word)
@@ -57,37 +57,37 @@ insert_word(str word)
  Inserts a word into the database with a count of zero, and returns true, unless it already exists, in which case it returns false.
 
 ```
-count_words(str url)
+increment_word(str word)
 ```
-Not currently finished
+ Adds one to the total number of a word unless it doesn't exist in the database, in which case it adds it, with an initial count of 1, returning an integer of it's count.
+
 
 ```
 count_total_words()
 ```
-Counts the total number of words in the database and returns an integer value
+Counts the total number of words in the database and returns an integer value.
 
 ```
 count_distinct_words()
 ```
-Counts the number of distinct words in the database which have appeared at least once, and returns an integer value
+Counts the number of distinct words in the database which have appeared at least once, and returns an integer value.
 
 ```
 average_count()
 ```
-Calculates the average number of repititions a words has in the database and returns an integer value
+Calculates the average number of repititions a words has in the database and returns an integer value.
 
 ```
 std_count()
 ```
-Calculates the standard deviation of the number of repititions a words has in the database and returns an integer value
+Calculates the standard deviation of the number of repititions a words has in the database and returns an integer value.
 
 ```
 order_keywords()
 ```
-Returns a list of all the keywords in the database which have appeared at least once, in descending order of their repitions, displaying both the keywords and the number of times they've appeared
-
+Returns a list of all the keywords in the database which have appeared at least once, in descending order of their repitions, displaying both the keywords and the number of times they've appeared.
 
 ```
 calculate_keywords(int total_words)
 ```
-Not currently finished
+Not currently finished.
