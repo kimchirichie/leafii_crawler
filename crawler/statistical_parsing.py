@@ -27,7 +27,7 @@ def get_all_urls():
 
 def insert_word(word):
 	"""
-	(word) --> boolean
+	(string) --> boolean
 
 	Inserts a word into the database with a count of zero, and returns true, unless it already exists, in which case it returns false.
 	"""
@@ -53,7 +53,7 @@ def insert_word(word):
 	
 def increment_word(word):
 	"""
-	(word) --> integer
+	(string) --> integer
 
 	Adds one to the total number of a word unless it doesn't exist in the database, in which case it adds it, with an initial count of 1, returning an integer of it's count.
 	"""
@@ -179,7 +179,6 @@ def order_keywords():
 	for i in db.word_count.find():
 		data = data + [i]
 	
-	ordered_list = []
 	temp_list = []
 
 	#creates a list containing only the number values
@@ -203,3 +202,24 @@ def order_keywords():
 
 	for i in sorted_list:
 		print i[0] + ": " + str(i[1])
+
+def calculate_keywords(total_words):
+	"""
+	(integer) --> list
+
+	Returns a list of all the keywords in the database which have met a statistical criteria
+	"""
+	start_time = time.time()
+	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+	db = client.meteor
+	key_dict = db.word_count
+	data = []
+
+	for i in db.word_count.find():
+		data = data + [i]
+
+	sorted_list = []
+	avg_val = average_count()
+	std_dev = std_count()
+
+	
