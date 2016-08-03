@@ -40,7 +40,7 @@ for i in range(len(data)):
     for k in range(len(tags)):
         print ("Keywords Website:" + url_temp)
 
-        key_db = {"keywords": tags[k], "url": url_temp, "user_id": id_temp, "pdf": "False"}
+        key_db = {"keyword": tags[k], "url": url_temp, "user_id": id_temp, "pdf": "False"}
 
         key_dict_id = key_dict.insert_one(key_db).inserted_id
 
@@ -48,7 +48,7 @@ for i in range(len(data)):
 
     for j in range(len(tagsPDF)):
         print ("Keywords PDF:" + url_temp)
-        key_db = {"keywords": tagsPDF[j], "url": url_temp, "user_id": id_temp, "pdf": "True"}
+        key_db = {"keyword": tagsPDF[j], "url": url_temp, "user_id": id_temp, "pdf": "True"}
 
         # print key_db
 
