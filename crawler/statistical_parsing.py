@@ -66,7 +66,15 @@ def increment_word(word):
 				db.word_count.update({ "word": word}, {"word": word, "total": temp_count})  
 		return temp_count
 
-#def count_words(word):
+def count_words(url):
+	start_time = time.time()
+	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+	db = client.meteor
+	url_list = []
+	data = []
+
+	for i in db.users.find():
+		data = data + [i]
 
 def count_total_words():
 	start_time = time.time()
@@ -127,5 +135,39 @@ def std_count():
 	print numpy.std(count_list)
 	return numpy.std(count_list)
 
-def calculate_keywords():
+def order_keywords():
+	start_time = time.time()
+	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
+	db = client.meteor
+	key_dict = db.word_count
+	data = []
+
+	for i in db.word_count.find():
+		data = data + [i]
 	
+	ordered_list = []
+	temp_list = []
+
+	#creates a list containing only the number values
+	for i in range(len(data)):
+		temp_list = temp_list + [data[i].get("total")]
+
+	sorted_list = []
+	highest_val = max(temp_list)
+	word_list = []
+	
+	#sorts through the list by adding the highest value and word to a sorted list then removing it from temp_list
+	while highest_val != 0:
+		temp_list.remove(highest_val)
+		
+		for i in range(len(data)):
+			if data[i].get("total") == highest_val and data[i].get("word") not in word_list:
+				sorted_list.append([data[i].get("word"),data[i].get("total")])
+				word_list.append(data[i].get("word"))
+				
+		highest_val = max(temp_list)
+
+	for i in sorted_list:
+		print i[0] + ": " + str(i[1])
+
+#def calculate_keywords(total_words):

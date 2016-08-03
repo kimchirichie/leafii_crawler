@@ -349,5 +349,3 @@ def re_parse_all():
 	except Exception, e:
 		print e
 		return False
-
-find_user_by_name("RiCHard")
