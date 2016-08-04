@@ -83,11 +83,6 @@ std_count()
 Calculates the standard deviation of the number of repititions a words has in the database and returns an integer value.
 
 ```
-order_keywords()
+calculate_keywords()
 ```
-Returns a list of all the keywords in the database which have appeared at least once, in descending order of their repitions, displaying both the keywords and the number of times they've appeared.
-
-```
-calculate_keywords(int total_words)
-```
-Not currently finished.
+Returns a list of all the keywords in the database which are less than 0.8414 standard deviations above the mean (bottom 80%)

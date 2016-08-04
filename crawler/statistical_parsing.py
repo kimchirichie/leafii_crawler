@@ -187,41 +187,36 @@ def calculate_keywords():
 	for i in range(len(data)):
 		num_list = num_list + [data[i].get("total")]
 
-	print num_list
+	#print num_list
 	#creates a list that lists the number of standard deviations from the mean each index is
 
 	std_list = []
 	for i in num_list:
 		std_list.append((avg_val-i)/std_dev)
-	print std_list
+	#print std_list
 
-	#filters out any values greater than 0.8416 standard deviations above the mean
+	#filters out any values greater than 0.8416 standard deviations above the mean from num_list
 	filtered_list = []
-	for i in std_list:
-		if i < -0.8416:
-			#assigns large standard deviation value to assure low rankings
-			filtered_list.append(999)
-		else:
-			filtered_list.append(i)
-	print filtered_list			
-
-	highest_value = min(filtered_list)
-	word_list = []
+	for i in range(len(std_list)):
+		if std_list[i] < -0.8416:
+			#assigns 0 value to values out of range
+			num_list[i] = 0
+	#print num_list	
 	
-	while highest_value != 999:
-		for i in range(len(data)):
-			print highest_value
-			print ((highest_value * std_dev) + avg_val) == data[i].get("total")
-			print data[i].get("word") not in word_list
-			if ((highest_value * std_dev) + avg_val) == data[i].get("total") and data[i].get("word") not in word_list and highest_value != 999:
-				sorted_list.append([data[i].get("word"),data[i].get("total")])
-				print highest_value
-				word_list.append(data[i].get("word"))
-				filtered_list.remove(filtered_list[i])
-			highest_value = min(filtered_list)
+	
+	sorted_list = []
+	highest_val = max(num_list)
+	word_list = []
+	#adds the highest name/value pair from num_list to sorted list then removes it from num_list 
+	while highest_val != 0:
 
+		for i in range(len(data)):
+			if data[i].get("total") == highest_val and data[i].get("word") not in word_list and num_list[i] != 0:
+				sorted_list.append([data[i].get("word"),data[i].get("total")])
+				word_list.append(data[i].get("word"))
+				num_list[i] = 0
+				
+		highest_val = max(num_list)
 	for i in sorted_list:
 		print i[0] + ": " + str(i[1])
 	return sorted_list
-
-calculate_keywords()
