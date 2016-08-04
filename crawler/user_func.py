@@ -349,4 +349,3 @@ def re_parse_all():
 	except Exception, e:
 		print e
 		return False
-		

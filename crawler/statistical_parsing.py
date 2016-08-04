@@ -100,7 +100,7 @@ def count_total_words():
 	for i in range(len(data)):
 		counter += data[i].get("total")
 
-	print counter
+	#print counter
 	return counter
 
 def count_distinct_words():
@@ -120,10 +120,9 @@ def count_distinct_words():
 
 	counter = 0
 	for i in range(len(data)):
-		if data[i].get("total") > 0:
-			counter += 1
+		counter += 1
 
-	print counter
+	#print counter
 	return counter
 
 def average_count():
@@ -132,13 +131,13 @@ def average_count():
 
 	Calculates the average number of repititions a words has in the database and returns an integer value.
 	"""
-	print "total:"
+	#print "total:"
 	total = float(count_total_words()) 
-	print "distinct:"
-	distinct = count_distinct_words()
-	print "average:"
+	#print "distinct:"
+	distinct = float(count_distinct_words())
+	#print "average:"
 	average = total / distinct
-	print average
+	print "Average: " + str(average)
 	return average
 	
 def std_count():
@@ -160,54 +159,15 @@ def std_count():
 	for i in range(len(data)):
 		count_list.append(data[i].get("total"))
 
-	print numpy.std(count_list)
+	print "Standard Deviation: " + str(numpy.std(count_list))
 	return numpy.std(count_list)
 
-def order_keywords():
+def calculate_keywords():
 	"""
 	() --> list
 
-	Returns a list of all the keywords in the database which have appeared at least once, 
-	in descending order of their repitions, displaying both the keywords and the number of times they've appeared.
-	"""
-	start_time = time.time()
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-	db = client.meteor
-	key_dict = db.word_count
-	data = []
-
-	for i in db.word_count.find():
-		data = data + [i]
-	
-	temp_list = []
-
-	#creates a list containing only the number values
-	for i in range(len(data)):
-		temp_list = temp_list + [data[i].get("total")]
-
-	sorted_list = []
-	highest_val = max(temp_list)
-	word_list = []
-	
-	#sorts through the list by adding the highest value and word to a sorted list then removing it from temp_list
-	while highest_val != 0:
-		temp_list.remove(highest_val)
-		
-		for i in range(len(data)):
-			if data[i].get("total") == highest_val and data[i].get("word") not in word_list:
-				sorted_list.append([data[i].get("word"),data[i].get("total")])
-				word_list.append(data[i].get("word"))
-				
-		highest_val = max(temp_list)
-
-	for i in sorted_list:
-		print i[0] + ": " + str(i[1])
-
-def calculate_keywords(total_words):
-	"""
-	(integer) --> list
-
-	Returns a list of all the keywords in the database which have met a statistical criteria
+	Returns a list of all the keywords in the database which are less than 0.8414 standard deviations
+	above the mean (bottom 80%)
 	"""
 	start_time = time.time()
 	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
@@ -221,5 +181,47 @@ def calculate_keywords(total_words):
 	sorted_list = []
 	avg_val = average_count()
 	std_dev = std_count()
+	num_list = []
 
+	# creates a list with all the total values
+	for i in range(len(data)):
+		num_list = num_list + [data[i].get("total")]
+
+	print num_list
+	#creates a list that lists the number of standard deviations from the mean each index is
+
+	std_list = []
+	for i in num_list:
+		std_list.append((avg_val-i)/std_dev)
+	print std_list
+
+	#filters out any values greater than 0.8416 standard deviations above the mean
+	filtered_list = []
+	for i in std_list:
+		if i < -0.8416:
+			#assigns large standard deviation value to assure low rankings
+			filtered_list.append(999)
+		else:
+			filtered_list.append(i)
+	print filtered_list			
+
+	highest_value = min(filtered_list)
+	word_list = []
 	
+	while highest_value != 999:
+		for i in range(len(data)):
+			print highest_value
+			print ((highest_value * std_dev) + avg_val) == data[i].get("total")
+			print data[i].get("word") not in word_list
+			if ((highest_value * std_dev) + avg_val) == data[i].get("total") and data[i].get("word") not in word_list and highest_value != 999:
+				sorted_list.append([data[i].get("word"),data[i].get("total")])
+				print highest_value
+				word_list.append(data[i].get("word"))
+				filtered_list.remove(filtered_list[i])
+			highest_value = min(filtered_list)
+
+	for i in sorted_list:
+		print i[0] + ": " + str(i[1])
+	return sorted_list
+
+calculate_keywords()
