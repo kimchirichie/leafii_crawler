@@ -17,20 +17,24 @@ def find_user_by_id(user_id):
 		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 		db = client.meteor
 		data = []
-
+		if type(user_id) != str:
+			raise TypeError 
 		for i in db.users.find():
 			data.append(i)
 
 		
 		for i in range(len(data)):
 			if data[i].get("_id") == user_id:
-				print "Found"
 				print data[i]
 				return data[i]
 		
-	
-	except Exception, e:
-		print e
+		raise ValueError
+
+	except TypeError:
+		raise TypeError("Invalid Input. Enter a valid user id as a string to use this function")
+		return False
+	except ValueError:
+		raise ValueError("Invalid User ID")
 		return False
 
 def find_user_by_email(email):
@@ -40,7 +44,8 @@ def find_user_by_email(email):
 		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 		db = client.meteor
 		data = []
-
+		if type(email) != str:
+			raise TypeError 
 		for i in db.users.find():
 			data.append(i)
 
@@ -50,9 +55,13 @@ def find_user_by_email(email):
 				print "Found"
 				print data[i]
 				print "User ID: " + data[i].get("_id")
-				return data[i]	
-	except Exception, e:
-		print e
+				return data[i]
+		raise ValueError	
+	except TypeError:
+		raise TypeError("Invalid Input. Enter a valid email as a string to use this function")
+		return False
+	except ValueError:
+		raise ValueError("No user found with that email")
 		return False
 
 def find_user_by_name(name):
@@ -62,7 +71,8 @@ def find_user_by_name(name):
 		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 		db = client.meteor
 		data = []
-		
+		if type(name) != str:
+			raise TypeError 
 		name = name.lower()
 
 		for i in db.users.find():
@@ -99,15 +109,19 @@ def find_user_by_name(name):
 					if temp_name[c] in temp_profile.get("firstName").lower() or temp_name[c] in temp_profile.get("lastName").lower():
 						user_list = user_list + [data[i]]
 
+		if len(user_list) == 0:
+			raise ValueError
 
 		for i in range(len(user_list)):
 			print user_list[i]
 			print ""
 		return user_list
 
-	except Exception, e:
-		print e
+	except TypeError:
+		raise TypeError("Invalid Input. Enter a valid name as a string to use this function")
 		return False
+	except ValueError:
+		raise ValueError("Name not found in database")
 
 def parse_user_site(user_id):
 	#parses through a user's site 
@@ -116,6 +130,9 @@ def parse_user_site(user_id):
 		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 		db = client.meteor
 		data = []
+		if type(user_id) != str and type(user_id) != unicode:
+			#print type(user_id)
+			raise TypeError 
 		key_dict = db.keywords_coll
 		# data is user data from user collection.
 		# we will be uploading our keywords to
@@ -123,16 +140,20 @@ def parse_user_site(user_id):
 		for i in db.users.find():
 			data.append(i)
 
+		url_temp = None
+		user_exists = False
 		for i in range(len(data)):
 			if data[i].get("_id") == user_id:
+				user_exists = True
 				data_temp = data[i]
 				profile = data[i].get("profile")
 				url_temp = profile.get("url")
 				break
 
 		if url_temp == None:
-			print "ERROR: No site assosciated with this user account"
+			raise ValueError
 			return False
+
 		#url_temp = (data_temp.get("profile").get("url"))
 		print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
 		id_temp = (data_temp.get("_id"))
@@ -191,15 +212,23 @@ def parse_user_site(user_id):
 
 					key_dict_id = key_dict.insert_one(key_db).inserted_id
 
-		print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
+		
 
-
+		print ""
 		print bcolors.OKGREEN + ("Took %s seconds total" % (time.time() - start_time)) + bcolors.ENDC
 		print bcolors.OKGREEN + "Went through one web page" + bcolors.ENDC
 		print bcolors.OKGREEN + "Generated " + str(key_count) + " keywords" + bcolors.ENDC
+		print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
 
-	except Exception, e:
-		print e
+
+	except TypeError:
+		raise TypeError("Invalid Input. Enter a valid user id as a string to use this function")
+		return False
+	except ValueError:
+		if user_exists == True:
+			raise ValueError("User has no url assosciated with account")
+		else:
+			raise ValueError("Invalid User ID")
 		return False
 
 def parse_all_users():
@@ -220,6 +249,7 @@ def parse_all_users():
 
 		#not sure why but have to run the parse_user_site function in a seperate for loop
 		for i in data:
+			#print i
 			parse_user_site(i)
 		return True
 
@@ -234,9 +264,18 @@ def delete_user_keywords(user_id):
 		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 		db = client.meteor
 		data = []
-
+		if type(user_id) != str:
+			raise TypeError 
 		for i in db.users.find():
 			data.append(i)
+
+		user_id_exists = False
+		for i in db.users.find():
+			if i.get("_id") == user_id:
+				user_id_exists = True
+
+		if user_id_exists == False:
+			raise ValueError
 
 		key_dict = db.keywords_coll
 
@@ -252,8 +291,11 @@ def delete_user_keywords(user_id):
 		#print user_keywords
 		print result
 
-	except Exception, e:
-		print e
+	except TypeError:
+		raise TypeError("Invalid Input. Enter a valid user id as a string to use this function")
+		return False
+	except ValueError:
+		raise ValueError("Invalid User ID")
 		return False
 
 def delete_all_keywords():
