@@ -20,9 +20,10 @@ def get_all_urls():
 		data = data + [i]
 	
 	for i in range(len(data)):
-		data_temp = data[i]
-		url_list.append(data_temp.get("profile").get("url"))
-		print url_list[i]
+		if data[i].get("profile").get("url") != None:
+			data_temp = data[i]
+			url_list.append(data_temp.get("profile").get("url"))
+			print url_list[i]
 	return url_list
 
 def insert_word(word):
@@ -220,3 +221,4 @@ def calculate_keywords():
 	for i in sorted_list:
 		print i[0] + ": " + str(i[1])
 	return sorted_list
+

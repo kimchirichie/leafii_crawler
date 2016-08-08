@@ -19,7 +19,7 @@ def find_user_by_id(user_id):
 		data = []
 
 		for i in db.users.find():
-			data = data + [i]
+			data.append(i)
 
 		
 		for i in range(len(data)):
@@ -42,7 +42,7 @@ def find_user_by_email(email):
 		data = []
 
 		for i in db.users.find():
-			data = data + [i]
+			data.append(i)
 
 		for i in range(len(data)):
 			temp_email = data[0].get("emails")
@@ -66,7 +66,7 @@ def find_user_by_name(name):
 		name = name.lower()
 
 		for i in db.users.find():
-			data = data + [i]
+			data.append(i)
 
 		#seperates string into array of words	
 		temp_name = re.findall(r'\w+', name)
@@ -121,13 +121,18 @@ def parse_user_site(user_id):
 		# we will be uploading our keywords to
 		# keywords collection.
 		for i in db.users.find():
-			data = data + [i]
+			data.append(i)
 
 		for i in range(len(data)):
 			if data[i].get("_id") == user_id:
 				data_temp = data[i]
 				profile = data[i].get("profile")
-				url_temp = profile.get("url")			
+				url_temp = profile.get("url")
+				break
+
+		if url_temp == None:
+			print "ERROR: No site assosciated with this user account"
+			return False
 		#url_temp = (data_temp.get("profile").get("url"))
 		print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
 		id_temp = (data_temp.get("_id"))
@@ -211,76 +216,11 @@ def parse_all_users():
 		# we will be uploading our keywords to
 		# keywords collection.
 		for i in db.users.find():
-			data = data + [i]
+			data.append(i.get("_id"))
 
-		for i in range(len(data)):
-		    data_temp = data[i]
-
-		    # obtain url and id from user data
-
-		    url_temp = (data_temp.get("profile").get("url"))
-		    print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
-		    id_temp = (data_temp.get("_id"))
-
-		    # there will be 2 types of html,
-		    # from website, and from pdf
-
-		    tags_temp = get_html(url_temp) # this is keywords from the html
-		    # print tags_temp
-		    tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
-		    # print tagsPDF_temp
-
-		    seen = set()
-		    tags = []
-		    tagsPDF = []
-
-		    for item in tags_temp:
-		        if item not in seen:
-		            seen.add(item)
-		            tags.append(item)
-		            # print "seen:", seen
-		            # print "tags:", tags, "\n"
-
-		    for item in tagsPDF_temp:
-		        if item not in seen:
-		            seen.add(item)
-		            tagsPDF.append(item)
-		            # print "seen:", seen
-		            # print "tags:", tagsPDF, "\n"
-
-		    # update the mongoDB with html keywords, with another id generated
-		    seen2 = set()
-		    for k in range(len(tags)):
-		        #print ("Keywords Website:" + url_temp)
-		        seperateTags = tags[k].split(" ")
-		        for l in range(len(seperateTags)):
-		            if seperateTags[l] not in seen2:
-		                seen2.add(seperateTags[l])
-		                key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
-		                print key_db
-		                # print seen2
-
-		                key_dict_id = key_dict.insert_one(key_db).inserted_id
-
-		    # update the mongoDB with pdf keywords, with another id generated
-
-		    for j in range(len(tagsPDF)):
-		        #print ("Keywords PDF:" + url_temp)
-		        seperateTagspdf = tagsPDF[j].split(" ")
-		        for h in range(len(seperateTagspdf)):
-		            if seperateTagspdf[h] not in seen2:
-		                seen2.add(seperateTagspdf[h])
-		                key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
-		                print key_db
-
-		                key_dict_id = key_dict.insert_one(key_db).inserted_id
-
-		    print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
-
-		print bcolors.OKGREEN + ("Took %s seconds total" % (time.time() - start_time)) + bcolors.ENDC
-		print bcolors.OKGREEN + "Went through " + str(len(data)) + " web pages" + bcolors.ENDC
-		print bcolors.OKGREEN + "Generated " + str(db.keywords_coll.count()) + " keywords" + bcolors.ENDC
-		
+		#not sure why but have to run the parse_user_site function in a seperate for loop
+		for i in data:
+			parse_user_site(i)
 		return True
 
 	except Exception, e:
@@ -296,7 +236,7 @@ def delete_user_keywords(user_id):
 		data = []
 
 		for i in db.users.find():
-			data = data + [i]
+			data.append(i)
 
 		key_dict = db.keywords_coll
 
@@ -325,7 +265,7 @@ def delete_all_keywords():
 		data = []
 
 		for i in db.users.find():
-			data = data + [i]
+			data.append(i)
 
 		key_dict = db.keywords_coll
 		#deletes existing data
