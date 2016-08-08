@@ -17,7 +17,7 @@ def get_all_urls():
 	data = []
 
 	for i in db.users.find():
-		data = data + [i]
+		data.append(i)
 	
 	for i in range(len(data)):
 		if data[i].get("profile").get("url") != None:
@@ -39,7 +39,7 @@ def insert_word(word):
 	data = []
 
 	for i in db.word_count.find():
-		data = data + [i]
+		data.append(i)
 
 	word_list = []
 		
@@ -65,7 +65,7 @@ def increment_word(word):
 	data = []	
 
 	for i in db.word_count.find():
-		data = data + [i]
+		data.append(i)
 
 	word_list = []
 		
@@ -95,7 +95,7 @@ def count_total_words():
 	data = []	
 
 	for i in db.word_count.find():
-		data = data + [i]
+		data.append(i)
 
 	counter = 0
 	for i in range(len(data)):
@@ -117,7 +117,7 @@ def count_distinct_words():
 	data = []	
 
 	for i in db.word_count.find():
-		data = data + [i]
+		data.append(i)
 
 	counter = 0
 	for i in range(len(data)):
@@ -154,7 +154,7 @@ def std_count():
 	data = []	
 
 	for i in db.word_count.find():
-		data = data + [i]
+		data.append(i)
 
 	count_list = []
 	for i in range(len(data)):
@@ -177,7 +177,7 @@ def calculate_keywords():
 	data = []
 
 	for i in db.word_count.find():
-		data = data + [i]
+		data.append(i)
 
 	sorted_list = []
 	avg_val = average_count()
