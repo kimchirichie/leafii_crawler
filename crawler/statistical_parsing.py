@@ -221,4 +221,3 @@ def calculate_keywords():
 	for i in sorted_list:
 		print i[0] + ": " + str(i[1])
 	return sorted_list
-

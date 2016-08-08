@@ -31,10 +31,10 @@ def find_user_by_id(user_id):
 		raise ValueError
 
 	except TypeError:
-		raise TypeError("Invalid Input. Enter a valid user id as a string to use this function")
+		raise TypeError(bcolors.FAIL + "Invalid Input. Enter a valid user id as a string to use this function" + bcolors.ENDC)
 		return False
 	except ValueError:
-		raise ValueError("Invalid User ID")
+		raise ValueError(bcolors.FAIL + "Invalid User ID" + bcolors.ENDC)
 		return False
 
 def find_user_by_email(email):
@@ -58,10 +58,10 @@ def find_user_by_email(email):
 				return data[i]
 		raise ValueError	
 	except TypeError:
-		raise TypeError("Invalid Input. Enter a valid email as a string to use this function")
+		raise TypeError(bcolors.FAIL +"Invalid Input. Enter a valid email as a string to use this function" + bcolors.ENDC)
 		return False
 	except ValueError:
-		raise ValueError("No user found with that email")
+		raise ValueError(bcolors.FAIL + "No user found with that email" + bcolors.ENDC)
 		return False
 
 def find_user_by_name(name):
@@ -118,10 +118,10 @@ def find_user_by_name(name):
 		return user_list
 
 	except TypeError:
-		raise TypeError("Invalid Input. Enter a valid name as a string to use this function")
+		raise TypeError(bcolors.FAIL + "Invalid Input. Enter a valid name as a string to use this function" + bcolors.ENDC)
 		return False
 	except ValueError:
-		raise ValueError("Name not found in database")
+		raise ValueError(bcolors.FAIL + "Name not found in database" + bcolors.ENDC)
 
 def parse_user_site(user_id):
 	#parses through a user's site 
@@ -222,13 +222,13 @@ def parse_user_site(user_id):
 
 
 	except TypeError:
-		raise TypeError("Invalid Input. Enter a valid user id as a string to use this function")
+		raise TypeError(bcolors.FAIL + "Invalid Input. Enter a valid user id as a string to use this function" + bcolors.ENDC)
 		return False
 	except ValueError:
 		if user_exists == True:
-			raise ValueError("User has no url assosciated with account")
+			raise ValueError(bcolors.FAIL + "User has no url assosciated with account" + bcolors.ENDC)
 		else:
-			raise ValueError("Invalid User ID")
+			raise ValueError(bcolors.FAIL + "Invalid User ID" + bcolors.ENDC)
 		return False
 
 def parse_all_users():
@@ -292,10 +292,10 @@ def delete_user_keywords(user_id):
 		print result
 
 	except TypeError:
-		raise TypeError("Invalid Input. Enter a valid user id as a string to use this function")
+		raise TypeError(bcolors.FAIL + "Invalid Input. Enter a valid user id as a string to use this function" + bcolors.ENDC)
 		return False
 	except ValueError:
-		raise ValueError("Invalid User ID")
+		raise ValueError(bcolors.FAIL + "Invalid User ID" + bcolors.ENDC)
 		return False
 
 def delete_all_keywords():

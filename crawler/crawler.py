@@ -25,6 +25,11 @@ def get_pdf_content(url, page_nums=[0]):
 	# Just in case, try opening the .pdf with
 	# the url found
 	try:
+		if type(url) != str:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Make sure to input the url as a string" + bcolors.ENDC) 
+	try:
 		# If we are redirected, follow it
 		r = requests.get(url)
 		# Call the download file, "resume.pdf"
@@ -148,6 +153,12 @@ def find_pdf(str, urlStr):
 	# If we find a .pdf in the html
 	# String, then try to find the
 	# entire link here
+	try:
+		if type(str) != str or type(urlStr) != str:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Make sure both input fields are strings" + bcolors.ENDC)
+
 	if (".pdf" in str):
 		# print "PDF file was found"
 		# a = Str[Str.find(".pdf")]
@@ -208,6 +219,12 @@ def find_pdf(str, urlStr):
 
 
 def find_degree(bodyStr):
+	
+	try:
+		if type(bodyStr) != str:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Input should be a string" + bcolors.ENDC)
 	keywords_body = []
 
 	# find words that are matching with our degree vocabulary
@@ -237,6 +254,11 @@ def find_degree(bodyStr):
 
 
 def find_skills(bodyStr):
+	try:
+		if type(bodyStr) != str:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Make sure input is a string" + bcolors.ENDC)
 	skill_words = []
 
 	# find words that are matching with our skills vocabulary
@@ -304,6 +326,11 @@ def find_skills(bodyStr):
 
 
 def search_meta_keywords(keywordStr):
+	try:
+		if type(keywordStr) != str:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Make sure input is a string" + bcolors.ENDC)
 	keyword_contents = []
 	# print (keywordStr.find('meta name="keywords" '))
 	# Check if meta tags are in the html
@@ -330,6 +357,11 @@ def search_meta_keywords(keywordStr):
 
 
 def title_find(titleStr):
+	try:
+		if type(titleStr) != str:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Make sure input is a string" + bcolors.ENDC)
 	keywords = []
 
 	# It will collect "titles" in between headers
@@ -378,7 +410,11 @@ def get_pdf(url):
 
 	# try to get keywords from this function
 	# if pdf was not found in the html, it will give us []
-
+	try:
+		if type(url) != str:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Make sure the url is a string" + bcolors.ENDC)
 	try:
 		if not "http://" in url == False:
 			url = "http://" + url
@@ -409,6 +445,11 @@ def get_pdf(url):
 # inputted HTML
 # THIS IS THE MAIN FUNCTION!!!
 def get_html(url):
+	try:
+		if type(url) != str:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Make sure input is a string" + bcolors.ENDC)
 	try:
 		url = url.lower()
 		# keywords_title = 0
