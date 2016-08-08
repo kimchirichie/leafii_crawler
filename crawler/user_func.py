@@ -131,8 +131,8 @@ def parse_user_site(user_id):
 		db = client.meteor
 		data = []
 		if type(user_id) != str and type(user_id) != unicode:
-			#print type(user_id)
 			raise TypeError 
+		user_id = str(user_id)
 		key_dict = db.keywords_coll
 		# data is user data from user collection.
 		# we will be uploading our keywords to
@@ -222,7 +222,9 @@ def parse_user_site(user_id):
 
 
 	except TypeError:
-		raise TypeError(bcolors.FAIL + "Invalid Input. Enter a valid user id as a string to use this function" + bcolors.ENDC)
+		print type(user_id)
+		print user_id
+		raise TypeError(bcolors.FAIL + "Invalid input type. Enter a valid user id as a string to use this function" + bcolors.ENDC)
 		return False
 	except ValueError:
 		if user_exists == True:

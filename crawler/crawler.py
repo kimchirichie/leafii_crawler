@@ -25,7 +25,7 @@ def get_pdf_content(url, page_nums=[0]):
 	# Just in case, try opening the .pdf with
 	# the url found
 	try:
-		if type(url) != str:
+		if type(url) != str and type(url) != unicode:
 			raise TypeError
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid input. Make sure to input the url as a string" + bcolors.ENDC) 
@@ -154,7 +154,7 @@ def find_pdf(str, urlStr):
 	# String, then try to find the
 	# entire link here
 	try:
-		if type(str) != str or type(urlStr) != str:
+		if (type(str) != str and type(str) != unicode) or (type(urlStr) != str  and type(urlStr) != unicode):
 			raise TypeError
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid input. Make sure both input fields are strings" + bcolors.ENDC)
@@ -221,7 +221,7 @@ def find_pdf(str, urlStr):
 def find_degree(bodyStr):
 	
 	try:
-		if type(bodyStr) != str:
+		if type(bodyStr) != str and type(bodyStr) != unicode:
 			raise TypeError
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid input. Input should be a string" + bcolors.ENDC)
@@ -255,7 +255,7 @@ def find_degree(bodyStr):
 
 def find_skills(bodyStr):
 	try:
-		if type(bodyStr) != str:
+		if type(bodyStr) != str and type(bodyStr) != unicode:
 			raise TypeError
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid input. Make sure input is a string" + bcolors.ENDC)
@@ -327,7 +327,7 @@ def find_skills(bodyStr):
 
 def search_meta_keywords(keywordStr):
 	try:
-		if type(keywordStr) != str:
+		if type(keywordStr) != str and type(keywordStr) != unicode:
 			raise TypeError
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid input. Make sure input is a string" + bcolors.ENDC)
@@ -358,7 +358,7 @@ def search_meta_keywords(keywordStr):
 
 def title_find(titleStr):
 	try:
-		if type(titleStr) != str:
+		if type(titleStr) != str and type(titleStr) != unicode:
 			raise TypeError
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid input. Make sure input is a string" + bcolors.ENDC)
@@ -411,7 +411,7 @@ def get_pdf(url):
 	# try to get keywords from this function
 	# if pdf was not found in the html, it will give us []
 	try:
-		if type(url) != str:
+		if type(url) != str and type(url) != unicode:
 			raise TypeError
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid input. Make sure the url is a string" + bcolors.ENDC)
@@ -446,7 +446,7 @@ def get_pdf(url):
 # THIS IS THE MAIN FUNCTION!!!
 def get_html(url):
 	try:
-		if type(url) != str:
+		if type(url) != str and type(url) != unicode:
 			raise TypeError
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid input. Make sure input is a string" + bcolors.ENDC)
