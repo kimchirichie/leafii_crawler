@@ -23,7 +23,7 @@ def get_all_urls():
 		if data[i].get("profile").get("url") != None:
 			data_temp = data[i]
 			url_list.append(data_temp.get("profile").get("url"))
-			print url_list[i]
+			#print url_list[i]
 	return url_list
 
 def insert_word(word):
@@ -63,7 +63,7 @@ def increment_word(word):
 	db = client.meteor
 	key_dict = db.word_count
 	data = []	
-
+	word = str(word)
 	for i in db.word_count.find():
 		data.append(i)
 
@@ -73,14 +73,15 @@ def increment_word(word):
 		word_list.append(data[i].get("word"))
 
 	if word not in word_list:
-		db.word_count.insert({"word": word, "total": 1})
-		return 1
-	else:
-		for i in range(len(data)):
-			if data[i].get("word") == word:
-				temp_count = data[i].get("total") + 1
-				db.word_count.update({ "word": word}, {"word": word, "total": temp_count})  
-		return temp_count
+		insert_word(word)
+		for i in db.word_count.find():
+			data.append(i)
+
+	for i in range(len(data)):
+		if data[i].get("word") == word:
+			temp_count = data[i].get("total") + 1
+			db.word_count.update({ "word": word}, {"word": word, "total": temp_count})  
+	return temp_count
 
 def count_total_words():
 	"""

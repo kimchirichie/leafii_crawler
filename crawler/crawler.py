@@ -7,6 +7,7 @@ from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
 from pymongo import MongoClient
+import re
 
 client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 
@@ -18,6 +19,13 @@ class bcolors:
 	FAIL = '\033[91m'
 	ENDC = '\033[0m'
 	OKBLUE = '\033[94m'
+
+def is_number(number):
+	try:
+		float(number)
+		return True
+	except ValueError:
+		return False
 
 # Download the .pdf resume and parse it
 def get_pdf_content(url, page_nums=[0]):
@@ -335,9 +343,9 @@ def search_meta_keywords(keywordStr):
 	# print (keywordStr.find('meta name="keywords" '))
 	# Check if meta tags are in the html
 	# quotation within quotation...
-	if (keywordStr.find("meta name=\"keywords\" ") != -1):
+	if (keywordStr.find("meta name=\"keywords\"") != -1):
 		# find where the meta tags start, (position)
-		starting_k_contents = keywordStr.find("meta name=\"keywords\" ") + 30
+		starting_k_contents = keywordStr.find("meta name=\"keywords\"") + 30
 
 		# find where the meta tags end, (position)
 		ending_k_contents = keywordStr.find(">", starting_k_contents)
@@ -347,7 +355,7 @@ def search_meta_keywords(keywordStr):
 		# replace and fix some of the formatting
 		temp_keywords = temp_keywords.replace("\"","")
 		temp_keywords = temp_keywords.split(",") # now temp_keywords are junks of keywords.
-		temp_keywords = temp_keywords.replace(" ", "")
+		temp_keywords = temp_keywords.replace("", "")
 		keyword_contents = keyword_contents + temp_keywords
 		return keyword_contents
 
@@ -475,7 +483,7 @@ def get_html(url):
 		# Read in the html, via read()
 		html = usock.read()
 		lowerCase_html = html.lower()
-
+		#print html
 		# Head tag - Grab the content in between
 		# the header tags
 		titleTag = lowerCase_html.find("<head>")
@@ -493,7 +501,7 @@ def get_html(url):
 		# between the header tags
 		bodyTag = lowerCase_html.find("<body>")
 		end_bodyTag = lowerCase_html.find("</body>")
-		# print lowerCase_html[bodyTag + 6:end_bodyTag]
+		#print lowerCase_html[bodyTag + 6:end_bodyTag]
 		# print ("computer science" in lowerCase_html[bodyTag + 6:end_bodyTag])
 		keywords_degree = find_degree(lowerCase_html[bodyTag + 6:end_bodyTag])
 
@@ -530,6 +538,165 @@ def get_html(url):
 		# Testing Purposes
 		# /#####################################/#
 
+def get_all_html(url):
+	try:
+		if type(url) != str and type(url) != unicode:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Make sure input is a string" + bcolors.ENDC)
+	try:
+		url = url.lower()
+		# keywords_title = 0
+		# print url
+
+		# If the url does not have
+		# "http://" then add the
+		# "http://" to the url
+		if url.find("http://") == -1:
+			url = "http://" + url
+		# print url
+		# url = requests.get(url)
+		# print url
+
+		# This part here acts as how
+		# one would read in a regular
+		# text file
+
+		# Grab the url, using the
+		# urllib2 package
+		usock = urllib2.urlopen(url)
+
+		# Read in the html, via read()
+		html = usock.read()
+		lowerCase_html = html.lower()
+
+		#print html
+		# Head tag - Grab the content in between
+		# the header tags
+		lowerCase_html = lowerCase_html.replace("<div>", "")
+		lowerCase_html = lowerCase_html.replace("</div>", "")
+		lowerCase_html = lowerCase_html.replace("<div class=", "")
+		lowerCase_html = lowerCase_html.replace("<p>", "")
+		lowerCase_html = lowerCase_html.replace("<p", "")
+		lowerCase_html = lowerCase_html.replace("</p>", "")
+		lowerCase_html = lowerCase_html.replace("<html>", "")
+		lowerCase_html = lowerCase_html.replace("</html>", "")
+		lowerCase_html = lowerCase_html.replace("<body>", "")
+		lowerCase_html = lowerCase_html.replace("</body>", "")
+		lowerCase_html = lowerCase_html.replace("<footer>", "")
+		lowerCase_html = lowerCase_html.replace("</footer>", "")
+		lowerCase_html = lowerCase_html.replace("<br />", "")
+		lowerCase_html = lowerCase_html.replace("<script type =", "")
+		lowerCase_html = lowerCase_html.replace("<src=", "")
+		lowerCase_html = lowerCase_html.replace("</script>", "")
+		lowerCase_html = lowerCase_html.replace("<h1>", "")
+		lowerCase_html = lowerCase_html.replace("</h1>", "")
+		lowerCase_html = lowerCase_html.replace("<h2>", "")
+		lowerCase_html = lowerCase_html.replace("</h2>", "")
+		lowerCase_html = lowerCase_html.replace("<h3>", "")
+		lowerCase_html = lowerCase_html.replace("</h3>", "")
+		lowerCase_html = lowerCase_html.replace("<h4>", "")
+		lowerCase_html = lowerCase_html.replace("</h4>", "")
+		lowerCase_html = lowerCase_html.replace("<h5>", "")
+		lowerCase_html = lowerCase_html.replace("</h5>", "")
+		lowerCase_html = lowerCase_html.replace("<h6>", "")
+		lowerCase_html = lowerCase_html.replace("</h6>", "")
+		lowerCase_html = lowerCase_html.replace("<a>", "")
+		lowerCase_html = lowerCase_html.replace("<a", "")
+		lowerCase_html = lowerCase_html.replace("</a>", "")
+		lowerCase_html = lowerCase_html.replace("<li>", "")
+		lowerCase_html = lowerCase_html.replace("</li>", "")
+		lowerCase_html = lowerCase_html.replace("<ul>", "")
+		lowerCase_html = lowerCase_html.replace("</ul>", "")
+		lowerCase_html = lowerCase_html.replace("\"", "")
+		lowerCase_html = lowerCase_html.replace("'", "")
+		lowerCase_html = lowerCase_html.replace("<a href=", " ")
+		lowerCase_html = lowerCase_html.replace("<button id=", " ")
+		lowerCase_html = lowerCase_html.replace("<span>", " ")
+		lowerCase_html = lowerCase_html.replace("</span>", " ")
+		lowerCase_html = lowerCase_html.replace("<!--", " ")
+		lowerCase_html = lowerCase_html.replace("-->", " ")
+		lowerCase_html = lowerCase_html.replace("<label>", " ")
+		lowerCase_html = lowerCase_html.replace("</label>", " ")
+		lowerCase_html = lowerCase_html.replace("<li class=", " ")
+		lowerCase_html = lowerCase_html.replace("<!doctype html>", " ")
+		lowerCase_html = lowerCase_html.replace("<html lang=en-ca>", " ")
+		lowerCase_html = lowerCase_html.replace("<meta charset=utf-8>", " ")
+		lowerCase_html = lowerCase_html.replace("<meta name=", " ")
+		lowerCase_html = lowerCase_html.replace("content=", " ")
+		lowerCase_html = lowerCase_html.replace("<title>", " ")
+		lowerCase_html = lowerCase_html.replace("</title>", " ")
+		lowerCase_html = lowerCase_html.replace("<head>", " ")
+		lowerCase_html = lowerCase_html.replace("</head>", " ")
+		lowerCase_html = lowerCase_html.replace("<img id=", " ")
+		lowerCase_html = lowerCase_html.replace("<script type=", " ")
+		lowerCase_html = lowerCase_html.replace("<link href=", " ")
+		lowerCase_html = lowerCase_html.replace("<link rel=", " ")
+		lowerCase_html = lowerCase_html.replace("<h1>", " ")
+		lowerCase_html = lowerCase_html.replace("<p id=", " ")
+		lowerCase_html = lowerCase_html.replace("<header>", " ")
+		lowerCase_html = lowerCase_html.replace("</header>", " ")
+		lowerCase_html = lowerCase_html.replace("id=", " ")
+		lowerCase_html = lowerCase_html.replace("href=", " ")
+		lowerCase_html = lowerCase_html.replace(".", " ")
+		lowerCase_html = lowerCase_html.replace(",", " ")
+		lowerCase_html = lowerCase_html.replace("/>", " ")
+		lowerCase_html = lowerCase_html.replace("<", " ")
+		lowerCase_html = lowerCase_html.replace(">", " ")
+		lowerCase_html = lowerCase_html.replace("#", " ")
+		lowerCase_html = lowerCase_html.replace(":", " ")
+		lowerCase_html = lowerCase_html.replace(";", " ")
+		lowerCase_html = lowerCase_html.replace("/", " ")
+		lowerCase_html = lowerCase_html.replace("-", " ")
+		lowerCase_html = lowerCase_html.replace("(", " ")
+		lowerCase_html = lowerCase_html.replace(")", " ")
+		lowerCase_html = lowerCase_html.replace("&", " ")
+		lowerCase_html = lowerCase_html.replace("\\", " ")
+		lowerCase_html = lowerCase_html.replace("=", " ")
+		lowerCase_html = lowerCase_html.replace("@", " ")
+		lowerCase_html = lowerCase_html.replace("_", " ")
+		lowerCase_html = lowerCase_html.replace("?", " ")
+		lowerCase_html = lowerCase_html.replace("|", " ")
+		lowerCase_html = lowerCase_html.replace("!", " ")
+		lowerCase_html = lowerCase_html.replace("+", " ")		
+		lowerCase_html = lowerCase_html.replace("[", " ")
+		lowerCase_html = lowerCase_html.replace("]", " ")
+		lowerCase_html = lowerCase_html.replace("{", " ")
+		lowerCase_html = lowerCase_html.replace("}", " ")
+		lowerCase_html = lowerCase_html.replace("*", " ")
+		lowerCase_html = lowerCase_html.replace("/", " ")
+		lowerCase_html = lowerCase_html.replace("@", " ")
+		lowerCase_html = lowerCase_html.replace("%", " ")
+		lowerCase_html = lowerCase_html.replace("$", " ")
+		lowerCase_html = lowerCase_html.replace("h1", " ")
+		lowerCase_html = lowerCase_html.replace("h2", " ")
+		lowerCase_html = lowerCase_html.replace("h3", " ")
+		lowerCase_html = lowerCase_html.replace("h4", " ")
+		lowerCase_html = lowerCase_html.replace("h5", " ")
+		lowerCase_html = lowerCase_html.replace("h6", " ")
+	
+		lowerCase_html = lowerCase_html.strip(' \u')
+		lowerCase_html = re.sub('\s+', ' ', lowerCase_html)
+		lowerCase_html = lowerCase_html.split(' ')
+		word_list = []
+		for i in lowerCase_html:
+			if i not in word_list and " " not in i and "" != i and is_number(i) == False:
+				word_list.append(i)
+		return word_list
+
+
+		#titleTag = lowerCase_html.find("<title>")
+		#end_titleTag = lowerCase_html.find("</title>")
+		#print lowerCase_html[titleTag + 7:end_titleTag]
+		#print keywords_title
+		# Meta Tags
+		
+	except:
+		print bcolors.FAIL + "Error in Main func, get_all_html(). Check all the functions inside." + bcolors.ENDC
+		return []
+
+		# Testing Purposes
+		# /#####################################/#
 
 #get_html("http://yljiang.github.io/")
 #get_html("http://richardsin.com")

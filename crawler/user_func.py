@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from crawler import get_html, get_pdf
+from crawler import get_html, get_pdf, get_all_html
 import time
 import re
 
@@ -161,7 +161,7 @@ def parse_user_site(user_id):
 		# there will be 2 types of html,
 		# from website, and from pdf
 		tags_temp = get_html(url_temp) # this is keywords from the html
-		# print tags_temp
+		#print tags_temp
 		tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
 		# print tagsPDF_temp
 
