@@ -4,15 +4,20 @@ import time
 from collections import Counter
 import numpy
 
+DB_URL = 'mongodb://127.0.0.1:3001/meteor'
+
+
+def connect():
+	client = MongoClient(DB_URL)
+	return client.meteor	
+
 def get_all_urls():
 	"""
 	() --> list
 
 	Returns a list of all the urls users have submitted.
 	"""
-	start_time = time.time()
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-	db = client.meteor
+	db = connect()
 	url_list = []
 	data = []
 
@@ -23,7 +28,7 @@ def get_all_urls():
 		if data[i].get("profile").get("url") != None:
 			data_temp = data[i]
 			url_list.append(data_temp.get("profile").get("url"))
-			#print url_list[i]
+			print url_list[i]
 	return url_list
 
 def insert_word(word):
@@ -32,25 +37,17 @@ def insert_word(word):
 
 	Inserts a word into the database with a count of zero, and returns true, unless it already exists, in which case it returns false.
 	"""
-	start_time = time.time()
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-	db = client.meteor
-	key_dict = db.word_count
-	data = []
+	db = connect()
 
-	for i in db.word_count.find():
-		data.append(i)
+	data = db.word_count.find_one({"word" : word})
+	
+	if data:
+		raise LookupError("Word: %s already exists in database" % word)
 
-	word_list = []
-		
-	for i in range(len(data)):
-		word_list.append(data[i].get("word"))
-
-	if word not in word_list:
+	else:
 		db.word_count.insert({"word": word, "total": 0})
 		return True
-	else:
-		return False
+	
 	
 def increment_word(word):
 	"""
@@ -58,29 +55,19 @@ def increment_word(word):
 
 	Adds one to the total number of a word unless it doesn't exist in the database, in which case it adds it, with an initial count of 1, returning an integer of it's count.
 	"""
-	start_time = time.time()
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-	db = client.meteor
-	key_dict = db.word_count
-	data = []	
+	db = connect()
 	word = str(word)
-	for i in db.word_count.find():
-		data.append(i)
+	data = db.word_count.find_one({"word" : word})
 
-	word_list = []
-		
-	for i in range(len(data)):
-		word_list.append(data[i].get("word"))
-
-	if word not in word_list:
+	if not data:
 		insert_word(word)
-		for i in db.word_count.find():
-			data.append(i)
 
-	for i in range(len(data)):
-		if data[i].get("word") == word:
-			temp_count = data[i].get("total") + 1
-			db.word_count.update({ "word": word}, {"word": word, "total": temp_count, "weightage": 1 / temp_count})  
+
+	if data:
+		temp_count = data.get("total") + 1
+		#assigns a weightage that decreases the more time a word is incremented
+		weightage = (float(1) / float(temp_count)) * 100
+		db.word_count.update({ "word": word}, {"word": word, "total": temp_count, "weightage": weightage})  
 	return temp_count
 
 def count_total_words():
@@ -89,20 +76,8 @@ def count_total_words():
 
 	Counts the total number of words in the database and returns an integer value.
 	"""
-	start_time = time.time()
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-	db = client.meteor
-	key_dict = db.word_count
-	data = []	
-
-	for i in db.word_count.find():
-		data.append(i)
-
-	counter = 0
-	for i in range(len(data)):
-		counter += data[i].get("total")
-
-	#print counter
+	db = connect()
+	counter = db.keywords_coll.count()
 	return counter
 
 def count_distinct_words():
@@ -111,20 +86,8 @@ def count_distinct_words():
 
 	Counts the number of distinct words in the database which have appeared at least once, and returns an integer value.
 	"""
-	start_time = time.time()
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-	db = client.meteor
-	key_dict = db.word_count
-	data = []	
-
-	for i in db.word_count.find():
-		data.append(i)
-
-	counter = 0
-	for i in range(len(data)):
-		counter += 1
-
-	#print counter
+	db = connect()
+	counter = db.word_count.count()
 	return counter
 
 def average_count():
@@ -148,18 +111,12 @@ def std_count():
 
 	Calculates the standard deviation of the number of repititions a words has in the database and returns an integer value.
 	"""
-	start_time = time.time()
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-	db = client.meteor
-	key_dict = db.word_count
+	
+	db = connect()
 	data = []	
-
-	for i in db.word_count.find():
-		data.append(i)
-
 	count_list = []
-	for i in range(len(data)):
-		count_list.append(data[i].get("total"))
+	for i in db.word_count.find():
+		count_list.append(i.get("total"))
 
 	print "Standard Deviation: " + str(numpy.std(count_list))
 	return numpy.std(count_list)
@@ -171,10 +128,8 @@ def calculate_keywords():
 	Returns a list of all the keywords in the database which are less than 0.8414 standard deviations
 	above the mean (bottom 80%)
 	"""
-	start_time = time.time()
-	client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-	db = client.meteor
-	key_dict = db.word_count
+	db = connect()
+	#key_dict = db.word_count
 	data = []
 
 	for i in db.word_count.find():
@@ -222,8 +177,3 @@ def calculate_keywords():
 	for i in sorted_list:
 		print i[0] + ": " + str(i[1])
 	return sorted_list
-
-#how to get string from database
-#for i in db.word_count.find():
-#	data.append(i)
-# data[i].get("word") 

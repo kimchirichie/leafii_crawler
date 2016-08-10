@@ -19,6 +19,7 @@ url_list = get_all_urls()
 start_time = time.time()
 #Runs through a list of all the urls, getting a list of all the words and incrementing them 
 user_list= []
+invalid_list = []
 for i in url_list:
 	print bcolors.HEAD + ("Running through..... " + i) + bcolors.ENDC
 	temp_list = get_all_html(i)
@@ -28,12 +29,13 @@ for i in url_list:
 			increment_word(k)
 		except Exception, e:
 			print bcolors.FAIL + "Invalid Entry" + bcolors.ENDC
+			invalid_list.append(k)
 			print e
 #sorts the bottom 80% of keywords in descending order
 print calculate_keywords()
 time_taken = time.time() - start_time
 total = count_total_words()
-
+print invalid_list
 print bcolors.OKBLUE + "Took " + str(time_taken) + " seconds to calculate " + str(total) + " incrementations" + bcolors.ENDC
 avg = time_taken / total
 print bcolors.OKBLUE + "That is " + str(avg) + "seconds per increment"

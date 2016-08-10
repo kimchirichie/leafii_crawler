@@ -3,6 +3,13 @@ from crawler import get_html, get_pdf, get_all_html
 import time
 import re
 
+DB_URL = 'mongodb://127.0.0.1:3001/meteor'
+
+
+def connect():
+	client = MongoClient(DB_URL)
+	return client.meteor	
+
 class bcolors:
 	HEAD = '\033[95m'
 	OKGREEN = '\033[92m'
@@ -13,12 +20,11 @@ class bcolors:
 def find_user_by_id(user_id):
 	#returns a user's info with their id
 	try:
-		start_time = time.time()
-		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-		db = client.meteor
+		db = connect()
 		data = []
 		if type(user_id) != str:
 			raise TypeError 
+		#find with id
 		for i in db.users.find():
 			data.append(i)
 
@@ -41,11 +47,11 @@ def find_user_by_email(email):
 	#returns a user's info with their email
 	try:
 		start_time = time.time()
-		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-		db = client.meteor
+		db = connect()
 		data = []
 		if type(email) != str:
 			raise TypeError 
+		#find using email
 		for i in db.users.find():
 			data.append(i)
 
@@ -68,8 +74,8 @@ def find_user_by_name(name):
 	#returns a list of all user's who have the input name as their first or last name
 	try:
 		start_time = time.time()
-		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-		db = client.meteor
+		
+		db = connect()
 		data = []
 		if type(name) != str:
 			raise TypeError 
@@ -127,8 +133,7 @@ def parse_user_site(user_id):
 	#parses through a user's site 
 	try:
 		start_time = time.time()
-		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-		db = client.meteor
+		db = connect()
 		data = []
 		if type(user_id) != str and type(user_id) != unicode:
 			raise TypeError 
@@ -157,6 +162,10 @@ def parse_user_site(user_id):
 		#url_temp = (data_temp.get("profile").get("url"))
 		print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
 		id_temp = (data_temp.get("_id"))
+		lastName_temp = (data_temp.get("profile").get("lastName"))
+		firstName_temp = (data_temp.get("profile").get("firstName"))
+		location_temp = (data_temp.get("profile").get("location"))
+		title_temp = name_temp = (data_temp.get("profile").get("occupation"))
 
 		# there will be 2 types of html,
 		# from website, and from pdf
@@ -191,15 +200,16 @@ def parse_user_site(user_id):
 			for l in range(len(seperateTags)):
 				if seperateTags[l] not in seen2:
 					try:
+						keyword_weightage = db.word_count.find({"word" : seperateTags[l].lower()})[0].get("weightage")
 						seen2.add(seperateTags[l])
-						key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
+						key_db = {"keyword": seperateTags[l].lower(), "keyword_weightage": str(keyword_weightage), "url": url_temp, "user_id": id_temp, "type": "web", "firstName": firstName_temp, "lastName": lastName_temp, "occupation": title_temp, "location": location_temp}
 						key_count += 1
 						print key_db
 						# print seen2
 
 						key_dict_id = key_dict.insert_one(key_db).inserted_id
 					except:
-						print bcolors.FAIL + "Unable to add keyword" + bcolors.ENDC
+						print bcolors.FAIL + "Unable to add keyword:" + seperateTags[l] + bcolors.ENDC
 		# update the mongoDB with pdf keywords, with another id generated
 
 		for j in range(len(tagsPDF)):
@@ -240,10 +250,9 @@ def parse_all_users():
 	try:
 		
 		start_time = time.time()
-		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-		db = client.meteor
+		db = connect()
 		data = []
-		key_dict = db.keywords_coll
+		#key_dict = db.keywords_coll
 
 		# data is user data from user collection.
 		# we will be uploading our keywords to
@@ -265,8 +274,7 @@ def delete_user_keywords(user_id):
 	#deletes all of a single user's keywords
 	try:
 		start_time = time.time()
-		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-		db = client.meteor
+		db = connect()
 		data = []
 		if type(user_id) != str:
 			raise TypeError 
@@ -274,12 +282,13 @@ def delete_user_keywords(user_id):
 			data.append(i)
 
 		user_id_exists = False
-		for i in db.users.find():
-			if i.get("_id") == user_id:
-				user_id_exists = True
+		# find by id
+		# for i in db.users.find():
+		# 	if i.get("_id") == user_id:
+		# 		user_id_exists = True
 
-		if user_id_exists == False:
-			raise ValueError
+		# if user_id_exists == False:
+		# 	raise ValueError
 
 		key_dict = db.keywords_coll
 
@@ -291,9 +300,11 @@ def delete_user_keywords(user_id):
 		#		user_keywords = user_keywords + [key_dict[i]]
 
 		#deletes existing user data
-		result = key_dict.delete_many({"user_id": user_id})
+		#result = key_dict.delete_many({"user_id": user_id})
+		db.keywords_coll.delete_many({"user_id": user_id})
 		#print user_keywords
-		print result
+		#print result
+		return
 
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid Input. Enter a valid user id as a string to use this function" + bcolors.ENDC)
@@ -306,16 +317,16 @@ def delete_all_keywords():
 	#deletes all keywords of all users
 	try:
 		start_time = time.time()
-		client = MongoClient('mongodb://127.0.0.1:3001/meteor')
-		db = client.meteor
+		
+		db = connect()
 		data = []
 
 		for i in db.users.find():
 			data.append(i)
 
-		key_dict = db.keywords_coll
+		db.keywords_coll.delete_many({})
 		#deletes existing data
-		result = key_dict.delete_many({})
+		#result = key_dict.delete_many({})
 		print "Entries Deleted"
 		return True
 
