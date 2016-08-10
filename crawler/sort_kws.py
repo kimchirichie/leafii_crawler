@@ -17,7 +17,7 @@ db.word_count.drop()
 
 url_list = get_all_urls()
 start_time = time.time()
-
+#Runs through a list of all the urls, getting a list of all the words and incrementing them 
 user_list= []
 for i in url_list:
 	print bcolors.HEAD + ("Running through..... " + i) + bcolors.ENDC
@@ -29,7 +29,7 @@ for i in url_list:
 		except Exception, e:
 			print bcolors.FAIL + "Invalid Entry" + bcolors.ENDC
 			print e
-
+#sorts the bottom 80% of keywords in descending order
 print calculate_keywords()
 time_taken = time.time() - start_time
 total = count_total_words()

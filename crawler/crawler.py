@@ -439,11 +439,15 @@ def get_pdf(url):
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid input. Make sure the url is a string" + bcolors.ENDC)
 	try:
+		
+		url = url.lower()
+
 		if not "http://" in url == False:
 			url = "http://" + url
+
 		usock = urllib2.urlopen(url)
 		html = usock.read()
-		print html
+		
 		# obtain pdf_url from find_pdf function
 		pdf_url = find_pdf(html, url)
 		pdfSkills = []
@@ -458,8 +462,9 @@ def get_pdf(url):
 			pdfSkills = get_pdf_content(pdf_url)
 		return pdfSkills
 
-	except:
+	except Exception, e:
 		print bcolors.FAIL + "Error in Main func, get_pdf(). Check all the functions inside." + bcolors.ENDC
+		print e
 		return []
 
 
@@ -579,7 +584,6 @@ def get_all_html(url):
 		# Grab the url, using the
 		# urllib2 package
 		usock = urllib2.urlopen(url)
-
 		# Read in the html, via read()
 		html = usock.read()
 		lowerCase_html = html.lower()
@@ -689,6 +693,3 @@ def get_all_pdf(url):
 		print e
 		return []
 
-#get_html("http://yljiang.github.io/")
-#get_html("http://richardsin.com")
-#get_pdf_content("resume.pdf")

@@ -12,6 +12,9 @@ try:
 		raise Exception('ERROR: Delete operation failed!')
 	if parse == False:
 		raise Exception('ERROR: Parse operation failed!')
-
+except ValueError:
+	print ("Invalid UserID found")
+except TypeError:
+	print ("UserID not string")
 except Exception, e:
 	sys.stderr.write(str(e))

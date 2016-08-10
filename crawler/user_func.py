@@ -160,7 +160,7 @@ def parse_user_site(user_id):
 
 		# there will be 2 types of html,
 		# from website, and from pdf
-		tags_temp = get_html(url_temp) # this is keywords from the html
+		tags_temp = get_all_html(url_temp) # this is keywords from the html
 		#print tags_temp
 		tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
 		# print tagsPDF_temp
@@ -190,14 +190,16 @@ def parse_user_site(user_id):
 			seperateTags = tags[k].split(" ")
 			for l in range(len(seperateTags)):
 				if seperateTags[l] not in seen2:
-					seen2.add(seperateTags[l])
-					key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
-					key_count += 1
-					print key_db
-					# print seen2
+					try:
+						seen2.add(seperateTags[l])
+						key_db = {"keyword": seperateTags[l].lower(), "url": url_temp, "user_id": id_temp, "type": "web"}
+						key_count += 1
+						print key_db
+						# print seen2
 
-					key_dict_id = key_dict.insert_one(key_db).inserted_id
-
+						key_dict_id = key_dict.insert_one(key_db).inserted_id
+					except:
+						print bcolors.FAIL + "Unable to add keyword" + bcolors.ENDC
 		# update the mongoDB with pdf keywords, with another id generated
 
 		for j in range(len(tagsPDF)):
@@ -333,3 +335,5 @@ def re_parse_all():
 	except Exception, e:
 		print e
 		return False
+
+re_parse_all()

@@ -80,7 +80,7 @@ def increment_word(word):
 	for i in range(len(data)):
 		if data[i].get("word") == word:
 			temp_count = data[i].get("total") + 1
-			db.word_count.update({ "word": word}, {"word": word, "total": temp_count})  
+			db.word_count.update({ "word": word}, {"word": word, "total": temp_count, "weightage": 1 / temp_count})  
 	return temp_count
 
 def count_total_words():
@@ -200,7 +200,7 @@ def calculate_keywords():
 	#filters out any values greater than 0.8416 standard deviations above the mean from num_list
 	filtered_list = []
 	for i in range(len(std_list)):
-		if std_list[i] < -0.8416:
+		if std_list[i] < -30.8416:
 			#assigns 0 value to values out of range
 			num_list[i] = 0
 	#print num_list	
@@ -222,3 +222,8 @@ def calculate_keywords():
 	for i in sorted_list:
 		print i[0] + ": " + str(i[1])
 	return sorted_list
+
+#how to get string from database
+#for i in db.word_count.find():
+#	data.append(i)
+# data[i].get("word") 
