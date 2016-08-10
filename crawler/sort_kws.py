@@ -16,16 +16,15 @@ db = client.meteor
 db.word_count.drop()
 
 url_list = get_all_urls()
-url_list = [url_list[0],url_list[1]]
 start_time = time.time()
 
 user_list= []
 for i in url_list:
-	print bcolors.OKGREEN + ("Running through..... " + i) + bcolors.ENDC
+	print bcolors.HEAD + ("Running through..... " + i) + bcolors.ENDC
 	temp_list = get_all_html(i)
 	for k in temp_list:
 		try:
-			print bcolors.OKGREEN + "Incrementing: " + k + " from " + i + bcolors.ENDC
+			print bcolors.OKGREEN + "Incrementing: " + k + bcolors.ENDC
 			increment_word(k)
 		except Exception, e:
 			print bcolors.FAIL + "Invalid Entry" + bcolors.ENDC

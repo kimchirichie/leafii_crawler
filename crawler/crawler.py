@@ -8,6 +8,21 @@ from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
 from pymongo import MongoClient
 import re
+from HTMLParser import HTMLParser
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 client = MongoClient('mongodb://127.0.0.1:3001/meteor')
 
@@ -426,10 +441,9 @@ def get_pdf(url):
 	try:
 		if not "http://" in url == False:
 			url = "http://" + url
-
 		usock = urllib2.urlopen(url)
 		html = usock.read()
-
+		print html
 		# obtain pdf_url from find_pdf function
 		pdf_url = find_pdf(html, url)
 		pdfSkills = []
@@ -569,75 +583,15 @@ def get_all_html(url):
 		# Read in the html, via read()
 		html = usock.read()
 		lowerCase_html = html.lower()
-
+		lowerCase_html = strip_tags(lowerCase_html)
+		#print lowerCase_html
 		#print html
 		# Head tag - Grab the content in between
 		# the header tags
-		lowerCase_html = lowerCase_html.replace("<div>", "")
-		lowerCase_html = lowerCase_html.replace("</div>", "")
-		lowerCase_html = lowerCase_html.replace("<div class=", "")
-		lowerCase_html = lowerCase_html.replace("<p>", "")
-		lowerCase_html = lowerCase_html.replace("<p", "")
-		lowerCase_html = lowerCase_html.replace("</p>", "")
-		lowerCase_html = lowerCase_html.replace("<html>", "")
-		lowerCase_html = lowerCase_html.replace("</html>", "")
-		lowerCase_html = lowerCase_html.replace("<body>", "")
-		lowerCase_html = lowerCase_html.replace("</body>", "")
-		lowerCase_html = lowerCase_html.replace("<footer>", "")
-		lowerCase_html = lowerCase_html.replace("</footer>", "")
-		lowerCase_html = lowerCase_html.replace("<br />", "")
-		lowerCase_html = lowerCase_html.replace("<script type =", "")
-		lowerCase_html = lowerCase_html.replace("<src=", "")
-		lowerCase_html = lowerCase_html.replace("</script>", "")
-		lowerCase_html = lowerCase_html.replace("<h1>", "")
-		lowerCase_html = lowerCase_html.replace("</h1>", "")
-		lowerCase_html = lowerCase_html.replace("<h2>", "")
-		lowerCase_html = lowerCase_html.replace("</h2>", "")
-		lowerCase_html = lowerCase_html.replace("<h3>", "")
-		lowerCase_html = lowerCase_html.replace("</h3>", "")
-		lowerCase_html = lowerCase_html.replace("<h4>", "")
-		lowerCase_html = lowerCase_html.replace("</h4>", "")
-		lowerCase_html = lowerCase_html.replace("<h5>", "")
-		lowerCase_html = lowerCase_html.replace("</h5>", "")
-		lowerCase_html = lowerCase_html.replace("<h6>", "")
-		lowerCase_html = lowerCase_html.replace("</h6>", "")
-		lowerCase_html = lowerCase_html.replace("<a>", "")
-		lowerCase_html = lowerCase_html.replace("<a", "")
-		lowerCase_html = lowerCase_html.replace("</a>", "")
-		lowerCase_html = lowerCase_html.replace("<li>", "")
-		lowerCase_html = lowerCase_html.replace("</li>", "")
-		lowerCase_html = lowerCase_html.replace("<ul>", "")
-		lowerCase_html = lowerCase_html.replace("</ul>", "")
+		
 		lowerCase_html = lowerCase_html.replace("\"", "")
 		lowerCase_html = lowerCase_html.replace("'", "")
-		lowerCase_html = lowerCase_html.replace("<a href=", " ")
-		lowerCase_html = lowerCase_html.replace("<button id=", " ")
-		lowerCase_html = lowerCase_html.replace("<span>", " ")
-		lowerCase_html = lowerCase_html.replace("</span>", " ")
-		lowerCase_html = lowerCase_html.replace("<!--", " ")
-		lowerCase_html = lowerCase_html.replace("-->", " ")
-		lowerCase_html = lowerCase_html.replace("<label>", " ")
-		lowerCase_html = lowerCase_html.replace("</label>", " ")
-		lowerCase_html = lowerCase_html.replace("<li class=", " ")
-		lowerCase_html = lowerCase_html.replace("<!doctype html>", " ")
-		lowerCase_html = lowerCase_html.replace("<html lang=en-ca>", " ")
-		lowerCase_html = lowerCase_html.replace("<meta charset=utf-8>", " ")
-		lowerCase_html = lowerCase_html.replace("<meta name=", " ")
-		lowerCase_html = lowerCase_html.replace("content=", " ")
-		lowerCase_html = lowerCase_html.replace("<title>", " ")
-		lowerCase_html = lowerCase_html.replace("</title>", " ")
-		lowerCase_html = lowerCase_html.replace("<head>", " ")
-		lowerCase_html = lowerCase_html.replace("</head>", " ")
-		lowerCase_html = lowerCase_html.replace("<img id=", " ")
-		lowerCase_html = lowerCase_html.replace("<script type=", " ")
-		lowerCase_html = lowerCase_html.replace("<link href=", " ")
-		lowerCase_html = lowerCase_html.replace("<link rel=", " ")
-		lowerCase_html = lowerCase_html.replace("<h1>", " ")
-		lowerCase_html = lowerCase_html.replace("<p id=", " ")
-		lowerCase_html = lowerCase_html.replace("<header>", " ")
-		lowerCase_html = lowerCase_html.replace("</header>", " ")
-		lowerCase_html = lowerCase_html.replace("id=", " ")
-		lowerCase_html = lowerCase_html.replace("href=", " ")
+		
 		lowerCase_html = lowerCase_html.replace(".", " ")
 		lowerCase_html = lowerCase_html.replace(",", " ")
 		lowerCase_html = lowerCase_html.replace("/>", " ")
@@ -668,13 +622,7 @@ def get_all_html(url):
 		lowerCase_html = lowerCase_html.replace("@", " ")
 		lowerCase_html = lowerCase_html.replace("%", " ")
 		lowerCase_html = lowerCase_html.replace("$", " ")
-		lowerCase_html = lowerCase_html.replace("h1", " ")
-		lowerCase_html = lowerCase_html.replace("h2", " ")
-		lowerCase_html = lowerCase_html.replace("h3", " ")
-		lowerCase_html = lowerCase_html.replace("h4", " ")
-		lowerCase_html = lowerCase_html.replace("h5", " ")
-		lowerCase_html = lowerCase_html.replace("h6", " ")
-	
+		
 		lowerCase_html = lowerCase_html.strip(' \u')
 		lowerCase_html = re.sub('\s+', ' ', lowerCase_html)
 		lowerCase_html = lowerCase_html.split(' ')
@@ -697,6 +645,49 @@ def get_all_html(url):
 
 		# Testing Purposes
 		# /#####################################/#
+
+def get_all_pdf(url):
+	try:
+		if type(url) != str and type(url) != unicode:
+			raise TypeError
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid input. Make sure the url is a string" + bcolors.ENDC)
+	try:
+		if not "http://" in url == False:
+			url = "http://" + url
+
+		url = url.lower()
+		# keywords_title = 0
+		# print url
+
+		# If the url does not have
+		# "http://" then add the
+		# "http://" to the url
+		if url.find("http://") == -1:
+			url = "http://" + url
+
+		usock = urllib2.urlopen(url)
+		html = usock.read()
+		# obtain pdf_url from find_pdf function
+		pdf_url = find_pdf(html, url)
+		print pdf_url
+		pdfSkills = []
+
+		# if pdf was not found, (== False)
+		if pdf_url == False:
+			print bcolors.OKBLUE + "pdf was not found in this site" + bcolors.ENDC
+			pdf_url = []
+
+		else:
+			# get_pdf_content function will give us keywords we need.
+			
+			pdfSkills = get_pdf_content(pdf_url)
+		return pdfSkills
+
+	except Exception, e:
+		print bcolors.FAIL + "Error in Main func, get_all_pdf(). Check all the functions inside." + bcolors.ENDC
+		print e
+		return []
 
 #get_html("http://yljiang.github.io/")
 #get_html("http://richardsin.com")
