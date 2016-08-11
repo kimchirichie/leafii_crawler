@@ -1,3 +1,4 @@
 pdfminer==20140328
 pymongo==3.3.0
 requests==2.10.0
+numpy==1.11.1
