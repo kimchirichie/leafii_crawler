@@ -21,20 +21,16 @@ def find_user_by_id(user_id):
 	#returns a user's info with their id
 	try:
 		db = connect()
-		data = []
+		#data = []
 		if type(user_id) != str:
 			raise TypeError 
-		#find with id
-		for i in db.users.find():
-			data.append(i)
 
-		
-		for i in range(len(data)):
-			if data[i].get("_id") == user_id:
-				print data[i]
-				return data[i]
-		
-		raise ValueError
+		data = db.users.find_one({"_id" : user_id})
+		if data:
+			print data
+			return data
+		else:
+			raise ValueError
 
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid Input. Enter a valid user id as a string to use this function" + bcolors.ENDC)
@@ -46,23 +42,19 @@ def find_user_by_id(user_id):
 def find_user_by_email(email):
 	#returns a user's info with their email
 	try:
-		start_time = time.time()
 		db = connect()
 		data = []
+
 		if type(email) != str:
 			raise TypeError 
-		#find using email
-		for i in db.users.find():
-			data.append(i)
 
-		for i in range(len(data)):
-			temp_email = data[0].get("emails")
-			if temp_email[0].get("address") == email:
-				print "Found"
-				print data[i]
-				print "User ID: " + data[i].get("_id")
-				return data[i]
-		raise ValueError	
+		data = db.users.find_one({"emails.address" : email})
+		if data:
+			print data
+			return data
+		else:
+			raise ValueError
+
 	except TypeError:
 		raise TypeError(bcolors.FAIL +"Invalid Input. Enter a valid email as a string to use this function" + bcolors.ENDC)
 		return False
@@ -134,7 +126,6 @@ def parse_user_site(user_id):
 	try:
 		start_time = time.time()
 		db = connect()
-		data = []
 		if type(user_id) != str and type(user_id) != unicode:
 			raise TypeError 
 		user_id = str(user_id)
@@ -142,22 +133,11 @@ def parse_user_site(user_id):
 		# data is user data from user collection.
 		# we will be uploading our keywords to
 		# keywords collection.
-		for i in db.users.find():
-			data.append(i)
-
-		url_temp = None
-		user_exists = False
-		for i in range(len(data)):
-			if data[i].get("_id") == user_id:
-				user_exists = True
-				data_temp = data[i]
-				profile = data[i].get("profile")
-				url_temp = profile.get("url")
-				break
-
-		if url_temp == None:
+		data_temp = db.users.find_one({"_id" : user_id})
+		if data_temp:
+ 			url_temp = data_temp.get("profile").get("url")
+		else:
 			raise ValueError
-			return False
 
 		#url_temp = (data_temp.get("profile").get("url"))
 		print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
@@ -233,7 +213,8 @@ def parse_user_site(user_id):
 		print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
 
 
-	except TypeError:
+	except Exception, e:
+		print e
 		print type(user_id)
 		print user_id
 		raise TypeError(bcolors.FAIL + "Invalid input type. Enter a valid user id as a string to use this function" + bcolors.ENDC)
@@ -248,22 +229,14 @@ def parse_user_site(user_id):
 def parse_all_users():
 	#parses through all the users' sites
 	try:
-		
-		start_time = time.time()
 		db = connect()
 		data = []
-		#key_dict = db.keywords_coll
-
-		# data is user data from user collection.
-		# we will be uploading our keywords to
-		# keywords collection.
+		
+		#gets a list of all user ids
 		for i in db.users.find():
-			data.append(i.get("_id"))
+			parse_user_site(i.get("_id"))
 
-		#not sure why but have to run the parse_user_site function in a seperate for loop
-		for i in data:
-			#print i
-			parse_user_site(i)
+		
 		return True
 
 	except Exception, e:
@@ -273,37 +246,15 @@ def parse_all_users():
 def delete_user_keywords(user_id):
 	#deletes all of a single user's keywords
 	try:
-		start_time = time.time()
 		db = connect()
-		data = []
 		if type(user_id) != str:
 			raise TypeError 
-		for i in db.users.find():
-			data.append(i)
+		data = db.users.find({"_id" : user_id})
+		if data:
+			db.keywords_coll.delete_many({"user_id": user_id})
+		else:
+			raise ValueError	
 
-		user_id_exists = False
-		# find by id
-		# for i in db.users.find():
-		# 	if i.get("_id") == user_id:
-		# 		user_id_exists = True
-
-		# if user_id_exists == False:
-		# 	raise ValueError
-
-		key_dict = db.keywords_coll
-
-		# adds all of a user's keywords to user_keywords to return the old list of user's keywords
-		user_keywords = []
-		
-		#for i in range(len(key_dict)):
-		#	if user_id in key_dict[i]:
-		#		user_keywords = user_keywords + [key_dict[i]]
-
-		#deletes existing user data
-		#result = key_dict.delete_many({"user_id": user_id})
-		db.keywords_coll.delete_many({"user_id": user_id})
-		#print user_keywords
-		#print result
 		return
 
 	except TypeError:
@@ -316,17 +267,10 @@ def delete_user_keywords(user_id):
 def delete_all_keywords():
 	#deletes all keywords of all users
 	try:
-		start_time = time.time()
+		sdb = connect()
 		
-		db = connect()
-		data = []
-
-		for i in db.users.find():
-			data.append(i)
-
 		db.keywords_coll.delete_many({})
 		#deletes existing data
-		#result = key_dict.delete_many({})
 		print "Entries Deleted"
 		return True
 
