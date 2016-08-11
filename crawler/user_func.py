@@ -145,7 +145,7 @@ def parse_user_site(user_id):
 		lastName_temp = (data_temp.get("profile").get("lastName"))
 		firstName_temp = (data_temp.get("profile").get("firstName"))
 		location_temp = (data_temp.get("profile").get("location"))
-		title_temp = name_temp = (data_temp.get("profile").get("occupation"))
+		title_temp = (data_temp.get("profile").get("occupation"))
 
 		# there will be 2 types of html,
 		# from website, and from pdf

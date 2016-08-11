@@ -22,13 +22,11 @@ def get_all_urls():
 	data = []
 
 	for i in db.users.find():
-		data.append(i)
+		if i.get("profile").get("url"):
+			url_list.append(i.get("profile").get("url"))
+
+	#print url_list
 	
-	for i in range(len(data)):
-		if data[i].get("profile").get("url") != None:
-			data_temp = data[i]
-			url_list.append(data_temp.get("profile").get("url"))
-			print url_list[i]
 	return url_list
 
 def insert_word(word):
@@ -61,8 +59,8 @@ def increment_word(word):
 
 	if not data:
 		insert_word(word)
-
-
+	
+	data = db.word_count.find_one({"word" : word})
 	if data:
 		temp_count = data.get("total") + 1
 		#assigns a weightage that decreases the more time a word is incremented
@@ -74,20 +72,30 @@ def count_total_words():
 	"""
 	() --> integer
 
-	Counts the total number of words in the database and returns an integer value.
+	Counts the total number of words in the database that have been counted more than once, and returns an integer value.
 	"""
 	db = connect()
-	counter = db.keywords_coll.count()
+	counter = 0
+
+	for i in db.word_count.find({"total" : {'$gt' : 1} }):
+		counter += i.get("total")
+	
+	#print counter
 	return counter
 
 def count_distinct_words():
 	"""
 	() --> integer
 
-	Counts the number of distinct words in the database which have appeared at least once, and returns an integer value.
+	Counts the number of distinct words in the database which have appeared more than once, and returns an integer value.
 	"""
 	db = connect()
-	counter = db.word_count.count()
+	counter = 0
+
+	for i in db.word_count.find({"total" : {'$gt' : 1} }):
+		counter += 1
+	
+	#print counter
 	return counter
 
 def average_count():
@@ -116,7 +124,8 @@ def std_count():
 	data = []	
 	count_list = []
 	for i in db.word_count.find():
-		count_list.append(i.get("total"))
+		if i.get("total"):
+			count_list.append(i.get("total"))
 
 	print "Standard Deviation: " + str(numpy.std(count_list))
 	return numpy.std(count_list)
@@ -155,7 +164,7 @@ def calculate_keywords():
 	#filters out any values greater than 0.8416 standard deviations above the mean from num_list
 	filtered_list = []
 	for i in range(len(std_list)):
-		if std_list[i] < -30.8416:
+		if std_list[i] < -0.8416:
 			#assigns 0 value to values out of range
 			num_list[i] = 0
 	#print num_list	

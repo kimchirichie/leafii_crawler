@@ -42,6 +42,16 @@ def is_number(number):
 	except ValueError:
 		return False
 
+
+def number_composition(word):
+	length = len(word)
+	word = list(word)
+	number = 0
+	for i in word:
+		if is_number(i):
+			number += 1
+	return number
+
 # Download the .pdf resume and parse it
 def get_pdf_content(url, page_nums=[0]):
 	resume = urllib.URLopener()
@@ -631,24 +641,17 @@ def get_all_html(url):
 		lowerCase_html = re.sub('\s+', ' ', lowerCase_html)
 		lowerCase_html = lowerCase_html.split(' ')
 		word_list = []
+		
 		for i in lowerCase_html:
-			if i not in word_list and " " not in i and "" != i and is_number(i) == False:
+			if i not in word_list and " " not in i and "" != i and is_number(i) == False and len(i) <= 20 and len(i) > 2 and number_composition(i) == 0:
 				word_list.append(i)
+				
 		return word_list
 
 
-		#titleTag = lowerCase_html.find("<title>")
-		#end_titleTag = lowerCase_html.find("</title>")
-		#print lowerCase_html[titleTag + 7:end_titleTag]
-		#print keywords_title
-		# Meta Tags
-		
 	except:
 		print bcolors.FAIL + "Error in Main func, get_all_html(). Check all the functions inside." + bcolors.ENDC
 		return []
-
-		# Testing Purposes
-		# /#####################################/#
 
 def get_all_pdf(url):
 	try:
