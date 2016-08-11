@@ -21,7 +21,6 @@ def find_user_by_id(user_id):
 	#returns a user's info with their id
 	try:
 		db = connect()
-		#data = []
 		if type(user_id) != str:
 			raise TypeError 
 
@@ -78,16 +77,14 @@ def find_user_by_name(name):
 
 		#seperates string into array of words	
 		temp_name = re.findall(r'\w+', name)
-		#temp_name_list = []
+
 		user_list = []
 		#changes search parameters based on number of words in search
 		if len(temp_name) == 1:
 			#searches for name in the first and last names of people in the profile
 			for i in range(len(data)):
 				temp_profile = data[i].get("profile")
-				#print temp_profile.get("firstName")
 				if name in temp_profile.get("firstName").lower() or name in temp_profile.get("lastName").lower() :
-					#print temp_profile
 					user_list = user_list + [data[i]]
 
 		elif len(temp_name) == 2:
@@ -139,20 +136,14 @@ def parse_user_site(user_id):
 		else:
 			raise ValueError
 
-		#url_temp = (data_temp.get("profile").get("url"))
 		print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
 		id_temp = (data_temp.get("_id"))
-		#lastName_temp = (data_temp.get("profile").get("lastName"))
-		#firstName_temp = (data_temp.get("profile").get("firstName"))
-		#location_temp = (data_temp.get("profile").get("location"))
-		#title_temp = (data_temp.get("profile").get("occupation"))
+		
 
 		# there will be 2 types of html,
 		# from website, and from pdf
 		tags_temp = get_all_html(url_temp) # this is keywords from the html
-		#print tags_temp
 		tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
-		# print tagsPDF_temp
 
 		seen = set()
 		tags = []
@@ -162,20 +153,16 @@ def parse_user_site(user_id):
 			if item not in seen:
 				seen.add(item)
 				tags.append(item)
-				# print "seen:", seen
-				# print "tags:", tags, "\n"
 
 		for item in tagsPDF_temp:
 			if item not in seen:
 				seen.add(item)
 				tagsPDF.append(item)
-				# print "seen:", seen
-				# print "tags:", tagsPDF, "\n"
+
 		key_count = 0
 		# update the mongoDB with html keywords, with another id generated
 		seen2 = set()
 		for k in range(len(tags)):
-			#print ("Keywords Website:" + url_temp)
 			seperateTags = tags[k].split(" ")
 			for l in range(len(seperateTags)):
 				if seperateTags[l] not in seen2:
@@ -185,7 +172,6 @@ def parse_user_site(user_id):
 						key_db = {"keyword": seperateTags[l].lower(), "keyword_weightage": str(keyword_weightage), "url": url_temp, "user_id": id_temp, "type": "web"}
 						key_count += 1
 						print key_db
-						# print seen2
 
 						key_dict_id = key_dict.insert_one(key_db).inserted_id
 					except:
@@ -193,7 +179,6 @@ def parse_user_site(user_id):
 		# update the mongoDB with pdf keywords, with another id generated
 
 		for j in range(len(tagsPDF)):
-			#print ("Keywords PDF:" + url_temp)
 			seperateTagspdf = tagsPDF[j].split(" ")
 			for h in range(len(seperateTagspdf)):
 				if seperateTagspdf[h] not in seen2:

@@ -12,11 +12,8 @@ def connect():
 	return client.meteor	
 
 def get_all_urls():
-	"""
-	() --> list
 
-	Returns a list of all the urls users have submitted.
-	"""
+	#Returns a list of all the urls users have submitted.
 	db = connect()
 	url_list = []
 	data = []
@@ -25,16 +22,12 @@ def get_all_urls():
 		if i.get("profile").get("url"):
 			url_list.append(i.get("profile").get("url"))
 
-	#print url_list
-	
 	return url_list
 
 def insert_word(word):
-	"""
-	(string) --> boolean
 
-	Inserts a word into the database with a count of zero, and returns true, unless it already exists, in which case it returns false.
-	"""
+	#Inserts a word into the database with a count of zero, and returns true, unless it already exists, in which case it returns false.
+	
 	db = connect()
 
 	data = db.word_count.find_one({"word" : word})
@@ -48,11 +41,9 @@ def insert_word(word):
 	
 	
 def increment_word(word):
-	"""
-	(string) --> integer
 
-	Adds one to the total number of a word unless it doesn't exist in the database, in which case it adds it, with an initial count of 1, returning an integer of it's count.
-	"""
+	#Adds one to the total number of a word unless it doesn't exist in the database, in which case it adds it, with an initial count of 1, returning an integer of it's count.
+	
 	db = connect()
 	word = str(word)
 	data = db.word_count.find_one({"word" : word})
@@ -69,56 +60,43 @@ def increment_word(word):
 	return temp_count
 
 def count_total_words():
-	"""
-	() --> integer
+	
+	#Counts the total number of words in the database that have been counted more than once, and returns an integer value.
 
-	Counts the total number of words in the database that have been counted more than once, and returns an integer value.
-	"""
 	db = connect()
 	counter = 0
 
 	for i in db.word_count.find({"total" : {'$gt' : 1} }):
 		counter += i.get("total")
 	
-	#print counter
 	return counter
 
 def count_distinct_words():
-	"""
-	() --> integer
 
-	Counts the number of distinct words in the database which have appeared more than once, and returns an integer value.
-	"""
+	#Counts the number of distinct words in the database which have appeared more than once, and returns an integer value.
+	
 	db = connect()
 	counter = 0
 
 	for i in db.word_count.find({"total" : {'$gt' : 1} }):
 		counter += 1
 	
-	#print counter
 	return counter
 
 def average_count():
-	"""
-	() --> integer
+	
+	#Calculates the average number of repititions a words has in the database and returns an integer value.
 
-	Calculates the average number of repititions a words has in the database and returns an integer value.
-	"""
-	#print "total:"
 	total = float(count_total_words()) 
-	#print "distinct:"
 	distinct = float(count_distinct_words())
-	#print "average:"
 	average = total / distinct
 	print "Average: " + str(average)
 	return average
 	
 def std_count():
-	"""
-	() --> integer
 
-	Calculates the standard deviation of the number of repititions a words has in the database and returns an integer value.
-	"""
+	#Calculates the standard deviation of the number of repititions a words has in the database and returns an integer value.
+
 	
 	db = connect()
 	data = []	
@@ -131,14 +109,10 @@ def std_count():
 	return numpy.std(count_list)
 
 def calculate_keywords():
-	"""
-	() --> list
-
-	Returns a list of all the keywords in the database which are less than 0.8414 standard deviations
+	
+	#Returns a list of all the keywords in the database which are less than 0.8414 standard deviations
 	above the mean (bottom 80%)
-	"""
 	db = connect()
-	#key_dict = db.word_count
 	data = []
 
 	for i in db.word_count.find():
@@ -153,13 +127,11 @@ def calculate_keywords():
 	for i in range(len(data)):
 		num_list = num_list + [data[i].get("total")]
 
-	#print num_list
 	#creates a list that lists the number of standard deviations from the mean each index is
 
 	std_list = []
 	for i in num_list:
 		std_list.append((avg_val-i)/std_dev)
-	#print std_list
 
 	#filters out any values greater than 0.8416 standard deviations above the mean from num_list
 	filtered_list = []
@@ -167,8 +139,6 @@ def calculate_keywords():
 		if std_list[i] < -0.8416:
 			#assigns 0 value to values out of range
 			num_list[i] = 0
-	#print num_list	
-	
 	
 	sorted_list = []
 	highest_val = max(num_list)
