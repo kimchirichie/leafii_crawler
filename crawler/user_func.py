@@ -142,10 +142,10 @@ def parse_user_site(user_id):
 		#url_temp = (data_temp.get("profile").get("url"))
 		print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
 		id_temp = (data_temp.get("_id"))
-		lastName_temp = (data_temp.get("profile").get("lastName"))
-		firstName_temp = (data_temp.get("profile").get("firstName"))
-		location_temp = (data_temp.get("profile").get("location"))
-		title_temp = (data_temp.get("profile").get("occupation"))
+		#lastName_temp = (data_temp.get("profile").get("lastName"))
+		#firstName_temp = (data_temp.get("profile").get("firstName"))
+		#location_temp = (data_temp.get("profile").get("location"))
+		#title_temp = (data_temp.get("profile").get("occupation"))
 
 		# there will be 2 types of html,
 		# from website, and from pdf
@@ -182,7 +182,7 @@ def parse_user_site(user_id):
 					try:
 						keyword_weightage = db.word_count.find({"word" : seperateTags[l].lower()})[0].get("weightage")
 						seen2.add(seperateTags[l])
-						key_db = {"keyword": seperateTags[l].lower(), "keyword_weightage": str(keyword_weightage), "url": url_temp, "user_id": id_temp, "type": "web", "firstName": firstName_temp, "lastName": lastName_temp, "occupation": title_temp, "location": location_temp}
+						key_db = {"keyword": seperateTags[l].lower(), "keyword_weightage": str(keyword_weightage), "url": url_temp, "user_id": id_temp, "type": "web"}
 						key_count += 1
 						print key_db
 						# print seen2
