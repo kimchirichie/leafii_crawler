@@ -267,7 +267,7 @@ def delete_user_keywords(user_id):
 def delete_all_keywords():
 	#deletes all keywords of all users
 	try:
-		sdb = connect()
+		db = connect()
 		
 		db.keywords_coll.delete_many({})
 		#deletes existing data
