@@ -18,7 +18,6 @@ db.word_count.drop()
 url_list = get_all_urls()
 start_time = time.time()
 delete_all_keywords()
-
 #increments each word in the html to word_count, storing the word and the number of repititions
 for i in url_list:
 	
