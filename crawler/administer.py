@@ -1,14 +1,7 @@
-from pymongo import MongoClient
-from crawler import get_html, get_pdf, get_all_html
+from connector import database
+from parser import get_pdf, get_html
 import time
 import re
-
-DB_URL = 'mongodb://127.0.0.1:3001/meteor'
-
-
-def connect():
-	client = MongoClient(DB_URL)
-	return client.meteor	
 
 class bcolors:
 	HEAD = '\033[95m'
@@ -17,16 +10,31 @@ class bcolors:
 	ENDC = '\033[0m'
 	OKBLUE = '\033[94m'
 
+def get_all_urls():
+	"""
+	() --> list
+
+	Returns a list of all the urls users have submitted.
+	"""
+	db = database()
+	url_list = []
+	data = []
+
+	for i in db.users.find():
+		if i.get("profile").get("url"):
+			url_list.append(i.get("profile").get("url"))
+	
+	return url_list
+
 def find_user_by_id(user_id):
 	#returns a user's info with their id
 	try:
-		db = connect()
+		db = database()
 		if type(user_id) != str:
 			raise TypeError 
 
 		data = db.users.find_one({"_id" : user_id})
 		if data:
-			print data
 			return data
 		else:
 			raise ValueError
@@ -41,7 +49,7 @@ def find_user_by_id(user_id):
 def find_user_by_email(email):
 	#returns a user's info with their email
 	try:
-		db = connect()
+		db = database()
 		data = []
 
 		if type(email) != str:
@@ -49,7 +57,6 @@ def find_user_by_email(email):
 
 		data = db.users.find_one({"emails.address" : email})
 		if data:
-			print data
 			return data
 		else:
 			raise ValueError
@@ -66,7 +73,7 @@ def find_user_by_name(name):
 	try:
 		start_time = time.time()
 		
-		db = connect()
+		db = database()
 		data = []
 		if type(name) != str:
 			raise TypeError 
@@ -122,27 +129,26 @@ def parse_user_site(user_id):
 	#parses through a user's site 
 	try:
 		start_time = time.time()
-		db = connect()
+		db = database()
 		if type(user_id) != str and type(user_id) != unicode:
-			raise TypeError 
+			raise TypeError
 		user_id = str(user_id)
-		key_dict = db.keywords_coll
 		# data is user data from user collection.
 		# we will be uploading our keywords to
 		# keywords collection.
-		data_temp = db.users.find_one({"_id" : user_id})
-		if data_temp:
- 			url_temp = data_temp.get("profile").get("url")
+		user = db.users.find_one({"_id" : user_id})
+		if user:
+ 			url_temp = user.get("profile").get("url")
 		else:
 			raise ValueError
 
-		print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
-		id_temp = (data_temp.get("_id"))
+		print bcolors.OKGREEN + ("parsing through: " + url_temp) + bcolors.ENDC
+		user_id = user.get("_id")
 		
 
-		# there will be 2 types of html,
+		# there will be 2 types of tags,
 		# from website, and from pdf
-		tags_temp = get_all_html(url_temp) # this is keywords from the html
+		tags_temp = get_html(url_temp) # this is keywords from the html
 		tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
 
 		seen = set()
@@ -169,11 +175,11 @@ def parse_user_site(user_id):
 					try:
 						keyword_weightage = db.word_count.find({"word" : seperateTags[l].lower()})[0].get("weightage")
 						seen2.add(seperateTags[l])
-						key_db = {"keyword": seperateTags[l].lower(), "keyword_weightage": str(keyword_weightage), "url": url_temp, "user_id": id_temp, "type": "web"}
+						key_db = {"keyword": seperateTags[l].lower(), "keyword_weightage": str(keyword_weightage), "url": url_temp, "user_id": user_id, "type": "web"}
 						key_count += 1
 						print key_db
 
-						key_dict_id = key_dict.insert_one(key_db).inserted_id
+						key_dict_id = db.keywords_coll.insert_one(key_db).inserted_id
 					except:
 						print bcolors.FAIL + "Unable to add keyword:" + seperateTags[l] + bcolors.ENDC
 		# update the mongoDB with pdf keywords, with another id generated
@@ -183,83 +189,86 @@ def parse_user_site(user_id):
 			for h in range(len(seperateTagspdf)):
 				if seperateTagspdf[h] not in seen2:
 					seen2.add(seperateTagspdf[h])
-					key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
+					key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": user_id, "type": "pdf"}
 					key_count += 1
 					print key_db
 
-					key_dict_id = key_dict.insert_one(key_db).inserted_id
+					key_dict_id = db.keywords_coll.insert_one(key_db).inserted_id
 
 		
 
 		print ""
 		print bcolors.OKGREEN + ("Took %s seconds total" % (time.time() - start_time)) + bcolors.ENDC
-		print bcolors.OKGREEN + "Went through one web page" + bcolors.ENDC
+		print bcolors.OKGREEN + ("Went through %s" % user.get("profile.url")) + bcolors.ENDC
 		print bcolors.OKGREEN + "Generated " + str(key_count) + " keywords" + bcolors.ENDC
 		print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
 
 
-	except Exception, e:
-		print e
-		print type(user_id)
-		print user_id
-		raise TypeError(bcolors.FAIL + "Invalid input type. Enter a valid user id as a string to use this function" + bcolors.ENDC)
-		return False
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid user_id" + bcolors.ENDC)
 	except ValueError:
 		if user_exists == True:
 			raise ValueError(bcolors.FAIL + "User has no url assosciated with account" + bcolors.ENDC)
 		else:
 			raise ValueError(bcolors.FAIL + "Invalid User ID" + bcolors.ENDC)
-		return False
+
+	except Exception as e:
+		print e
+		raise
 
 def parse_all_users():
 	#parses through all the users' sites
 	try:
-		db = connect()
+		db = database()
 		data = []
 		
 		#gets a list of all user ids
 		for i in db.users.find():
-			parse_user_site(i.get("_id"))
-
-		
+			try:
+				parse_user_site(i.get("_id"))
+			except Exception as e:
+				print e
+				pass
 		return True
 
-	except Exception, e:
+	except Exception as e:
 		print e
 		return False
 
 def delete_user_keywords(user_id):
 	#deletes all of a single user's keywords
 	try:
-		db = connect()
+		db = database()
 		if type(user_id) != str:
 			raise TypeError 
-		data = db.users.find({"_id" : user_id})
+		data = db.users.findOne({"_id" : user_id})
 		if data:
 			db.keywords_coll.delete_many({"user_id": user_id})
 		else:
 			raise ValueError	
 
-		return
+		print "User Entries Deleted"
+		return True
 
 	except TypeError:
-		raise TypeError(bcolors.FAIL + "Invalid Input. Enter a valid user id as a string to use this function" + bcolors.ENDC)
+		raise TypeError(bcolors.FAIL + "Invalid ID type" + bcolors.ENDC)
 		return False
 	except ValueError:
-		raise ValueError(bcolors.FAIL + "Invalid User ID" + bcolors.ENDC)
+		raise ValueError(bcolors.FAIL + "User with given ID not found" + bcolors.ENDC)
 		return False
 
 def delete_all_keywords():
 	#deletes all keywords of all users
 	try:
-		db = connect()
+		db = database()
 		
-		db.keywords_coll.delete_many({})
 		#deletes existing data
-		print "Entries Deleted"
+		db.keywords_coll.drop()
+		db.word_count.drop()
+		print "All Entries Deleted"
 		return True
 
-	except Exception, e:
+	except Exception as e:
 		print e
 		return False
 
@@ -272,8 +281,6 @@ def re_parse_all():
 		#parse all users
 		parse_all_users()
 
-	except Exception, e:
+	except Exception as e:
 		print e
 		return False
-
-		
