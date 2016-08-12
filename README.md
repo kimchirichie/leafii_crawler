@@ -28,7 +28,7 @@ $ sudo pip install -r requirements.txt
 
 ### How to use API:
 
-***Note*** Make sure database is running while using the package
+***Note***: Make sure database is running while using the package
 
 To use the crawler to parse localhost database:
 
