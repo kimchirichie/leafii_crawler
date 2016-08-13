@@ -597,7 +597,20 @@ def get_all_html(url):
 		# Read in the html, via read()
 		html = usock.read()
 		lowerCase_html = html.lower()
+		# removes comments from html string
+		
+		lowerCase_html = re.sub('<script[^<]*</script>','',lowerCase_html)
+		lowerCase_html = re.sub('<script[^>]*>','',lowerCase_html)
+		
+		#print "---------------------------------------"
+		while "<style" in lowerCase_html:
+			lowerCase_html = re.sub('<style[^<]*</style>','',lowerCase_html)
+			lowerCase_html = re.sub('<style[^>]*>','',lowerCase_html)
+			print "<style" in lowerCase_html
+		#print lowerCase_html
+		#lowerCase_html = re.sub('//*.*?*//','',lowerCase_html)
 		lowerCase_html = strip_tags(lowerCase_html)
+		#print lowerCase_html
 		#print lowerCase_html
 		#print html
 		# Head tag - Grab the content in between
@@ -640,16 +653,20 @@ def get_all_html(url):
 		lowerCase_html = lowerCase_html.strip(' \u')
 		lowerCase_html = re.sub('\s+', ' ', lowerCase_html)
 		lowerCase_html = lowerCase_html.split(' ')
+		#print lowerCase_html
 		word_list = []
-		
+
+		#print lowerCase_html
+		#somewhere here remove everything between style tags and script tags
 		for i in lowerCase_html:
-			if i not in word_list and " " not in i and "" != i and is_number(i) == False and len(i) <= 20 and len(i) > 2 and number_composition(i) == 0:
+			if i not in word_list and " " not in i and "" != i and is_number(i) == False and len(i) <= 20 and len(i) >= 3 and number_composition(i) == 0:
 				word_list.append(i)
 				
 		return word_list
 
 
-	except:
+	except Exception, e:
+		print e
 		print bcolors.FAIL + "Error in Main func, get_all_html(). Check all the functions inside." + bcolors.ENDC
 		return []
 
@@ -696,3 +713,4 @@ def get_all_pdf(url):
 		print e
 		return []
 
+#get_all_html("www.lornaqin.com")

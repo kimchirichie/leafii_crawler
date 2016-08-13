@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from WebCrawlLeafiipdf import get_html, get_pdf
+from crawler import get_html, get_pdf
 import time
 from collections import Counter
 import numpy
@@ -164,7 +164,7 @@ def calculate_keywords():
 	#filters out any values greater than 0.8416 standard deviations above the mean from num_list
 	filtered_list = []
 	for i in range(len(std_list)):
-		if std_list[i] < -0.8416:
+		if std_list[i] < -40.8416:
 			#assigns 0 value to values out of range
 			num_list[i] = 0
 	#print num_list	
@@ -186,3 +186,4 @@ def calculate_keywords():
 	for i in sorted_list:
 		print i[0] + ": " + str(i[1])
 	return sorted_list
+
