@@ -46,7 +46,6 @@ def insert_word(word):
 		db.word_count.insert({"word": word, "total": 0})
 		return True
 	
-	
 def increment_word(word):
 	"""
 	(string) --> integer
