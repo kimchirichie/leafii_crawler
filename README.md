@@ -28,61 +28,15 @@ $ sudo pip install -r requirements.txt
 
 ### How to use API:
 
+***Note***: Make sure database is running while using the package
+
 To use the crawler to parse localhost database:
 
 ```bash
-$ python crawler/createSearchables.py
-$ python crawler/testDB.py
+$ python -m crawler/scripts/createSearchable
+$ python -m crawler/scripts/reparse
 ```
-
-***Note***: Whenever you are running the parser more than once, make sure to remove the
-            collections: keywords_coll, skill_coll, degree_coll, in your terminal before
-            running again. Otherwise, you will have duplicate keys in the database
-
 
 ***Note***: If you are running Windows, grab the .tar or .zip files, and extract the folder
 			containing the .py files for the library, into wherever you installed Python.
 			Find the folder called, "site-packages", and just extract the folder in there
-
-### statistical_parsing.py functions:
-
-```
-get_all_urls()
-```
-Returns a list of all the urls users have submitted.
-
-```
-insert_word(str word)
-```
- Inserts a word into the database with a count of zero, and returns true, unless it already exists, in which case it returns false.
-
-```
-increment_word(str word)
-```
- Adds one to the total number of a word unless it doesn't exist in the database, in which case it adds it, with an initial count of 1, returning an integer of it's count.
-
-
-```
-count_total_words()
-```
-Counts the total number of words in the database and returns an integer value.
-
-```
-count_distinct_words()
-```
-Counts the number of distinct words in the database which have appeared at least once, and returns an integer value.
-
-```
-average_count()
-```
-Calculates the average number of repititions a words has in the database and returns an integer value.
-
-```
-std_count()
-```
-Calculates the standard deviation of the number of repititions a words has in the database and returns an integer value.
-
-```
-calculate_keywords()
-```
-Returns a list of all the keywords in the database which are less than 0.8414 standard deviations above the mean (bottom 80%)

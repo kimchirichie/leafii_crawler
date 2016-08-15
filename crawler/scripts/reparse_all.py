@@ -1,9 +1,8 @@
-from user_func import re_parse_all
+from crawler.administer import re_parse_all
 
 try:
 	
-	reparse = re_parse_all()
-	if reparse == False:
+	if not re_parse_all()
 		raise Exception('ERROR: Reparse operation failed!')
 
 except Exception, e:

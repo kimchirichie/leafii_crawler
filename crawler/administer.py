@@ -1,14 +1,7 @@
-from pymongo import MongoClient
-from crawler import get_html, get_pdf, get_all_html
+from connector import database
+from parser import get_pdf, get_html
 import time
 import re
-
-DB_URL = 'mongodb://127.0.0.1:3001/meteor'
-
-
-def connect():
-	client = MongoClient(DB_URL)
-	return client.meteor	
 
 class bcolors:
 	HEAD = '\033[95m'
@@ -17,17 +10,31 @@ class bcolors:
 	ENDC = '\033[0m'
 	OKBLUE = '\033[94m'
 
+def get_all_urls():
+	"""
+	() --> list
+
+	Returns a list of all the urls users have submitted.
+	"""
+	db = database()
+	url_list = []
+	data = []
+
+	for i in db.users.find():
+		if i.get("profile").get("url"):
+			url_list.append(i.get("profile").get("url"))
+	
+	return url_list
+
 def find_user_by_id(user_id):
 	#returns a user's info with their id
 	try:
-		db = connect()
-		#data = []
+		db = database()
 		if type(user_id) != str:
 			raise TypeError 
 
 		data = db.users.find_one({"_id" : user_id})
 		if data:
-			print data
 			return data
 		else:
 			raise ValueError
@@ -42,7 +49,7 @@ def find_user_by_id(user_id):
 def find_user_by_email(email):
 	#returns a user's info with their email
 	try:
-		db = connect()
+		db = database()
 		data = []
 
 		if type(email) != str:
@@ -50,7 +57,6 @@ def find_user_by_email(email):
 
 		data = db.users.find_one({"emails.address" : email})
 		if data:
-			print data
 			return data
 		else:
 			raise ValueError
@@ -67,7 +73,7 @@ def find_user_by_name(name):
 	try:
 		start_time = time.time()
 		
-		db = connect()
+		db = database()
 		data = []
 		if type(name) != str:
 			raise TypeError 
@@ -78,16 +84,14 @@ def find_user_by_name(name):
 
 		#seperates string into array of words	
 		temp_name = re.findall(r'\w+', name)
-		#temp_name_list = []
+
 		user_list = []
 		#changes search parameters based on number of words in search
 		if len(temp_name) == 1:
 			#searches for name in the first and last names of people in the profile
 			for i in range(len(data)):
 				temp_profile = data[i].get("profile")
-				#print temp_profile.get("firstName")
 				if name in temp_profile.get("firstName").lower() or name in temp_profile.get("lastName").lower() :
-					#print temp_profile
 					user_list = user_list + [data[i]]
 
 		elif len(temp_name) == 2:
@@ -125,34 +129,27 @@ def parse_user_site(user_id):
 	#parses through a user's site 
 	try:
 		start_time = time.time()
-		db = connect()
+		db = database()
 		if type(user_id) != str and type(user_id) != unicode:
-			raise TypeError 
+			raise TypeError
 		user_id = str(user_id)
-		key_dict = db.keywords_coll
 		# data is user data from user collection.
 		# we will be uploading our keywords to
 		# keywords collection.
-		data_temp = db.users.find_one({"_id" : user_id})
-		if data_temp:
- 			url_temp = data_temp.get("profile").get("url")
+		user = db.users.find_one({"_id" : user_id})
+		if user:
+ 			url_temp = user.get("profile").get("url")
 		else:
 			raise ValueError
 
-		#url_temp = (data_temp.get("profile").get("url"))
-		print bcolors.OKGREEN + ("Running through..... " + url_temp) + bcolors.ENDC
-		id_temp = (data_temp.get("_id"))
-		#lastName_temp = (data_temp.get("profile").get("lastName"))
-		#firstName_temp = (data_temp.get("profile").get("firstName"))
-		#location_temp = (data_temp.get("profile").get("location"))
-		#title_temp = (data_temp.get("profile").get("occupation"))
+		print bcolors.OKGREEN + ("parsing through: " + url_temp) + bcolors.ENDC
+		user_id = user.get("_id")
+		
 
-		# there will be 2 types of html,
+		# there will be 2 types of tags,
 		# from website, and from pdf
-		tags_temp = get_all_html(url_temp) # this is keywords from the html
-		#print tags_temp
+		tags_temp = get_html(url_temp) # this is keywords from the html
 		tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
-		# print tagsPDF_temp
 
 		seen = set()
 		tags = []
@@ -162,119 +159,119 @@ def parse_user_site(user_id):
 			if item not in seen:
 				seen.add(item)
 				tags.append(item)
-				# print "seen:", seen
-				# print "tags:", tags, "\n"
 
 		for item in tagsPDF_temp:
 			if item not in seen:
 				seen.add(item)
 				tagsPDF.append(item)
-				# print "seen:", seen
-				# print "tags:", tagsPDF, "\n"
+
 		key_count = 0
 		# update the mongoDB with html keywords, with another id generated
 		seen2 = set()
 		for k in range(len(tags)):
-			#print ("Keywords Website:" + url_temp)
 			seperateTags = tags[k].split(" ")
 			for l in range(len(seperateTags)):
 				if seperateTags[l] not in seen2:
 					try:
 						keyword_weightage = db.word_count.find({"word" : seperateTags[l].lower()})[0].get("weightage")
 						seen2.add(seperateTags[l])
-						key_db = {"keyword": seperateTags[l].lower(), "keyword_weightage": str(keyword_weightage), "url": url_temp, "user_id": id_temp, "type": "web"}
+						key_db = {"keyword": seperateTags[l].lower(), "type" : "web", "keyword_weightage": str(keyword_weightage), "url": url_temp, "user_id": user_id}
 						key_count += 1
 						print key_db
-						# print seen2
 
-						key_dict_id = key_dict.insert_one(key_db).inserted_id
-					except:
+						key_dict_id = db.keywords_coll.insert_one(key_db).inserted_id
+					except Exception, e:
+						print e
 						print bcolors.FAIL + "Unable to add keyword:" + seperateTags[l] + bcolors.ENDC
 		# update the mongoDB with pdf keywords, with another id generated
 
 		for j in range(len(tagsPDF)):
-			#print ("Keywords PDF:" + url_temp)
 			seperateTagspdf = tagsPDF[j].split(" ")
 			for h in range(len(seperateTagspdf)):
 				if seperateTagspdf[h] not in seen2:
+					keyword_weightage = db.word_count.find({"word" : seperateTags[l].lower()})[0].get("weightage")
 					seen2.add(seperateTagspdf[h])
-					key_db = {"keyword": seperateTagspdf[h].lower(), "url": url_temp, "user_id": id_temp, "type": "pdf"}
+					key_db = {"keyword": seperateTagspdf[h].lower(), "type": "pdf", "keyword_weightage" : str(keyword_weightage), "url": url_temp, "user_id": user_id}
 					key_count += 1
 					print key_db
 
-					key_dict_id = key_dict.insert_one(key_db).inserted_id
+					key_dict_id = db.keywords_coll.insert_one(key_db).inserted_id
 
 		
 
 		print ""
 		print bcolors.OKGREEN + ("Took %s seconds total" % (time.time() - start_time)) + bcolors.ENDC
-		print bcolors.OKGREEN + "Went through one web page" + bcolors.ENDC
+		print bcolors.OKGREEN + ("Went through %s" % user.get("profile.url")) + bcolors.ENDC
 		print bcolors.OKGREEN + "Generated " + str(key_count) + " keywords" + bcolors.ENDC
 		print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
 
 
-	except Exception, e:
-		print e
-		print type(user_id)
-		print user_id
-		raise TypeError(bcolors.FAIL + "Invalid input type. Enter a valid user id as a string to use this function" + bcolors.ENDC)
-		return False
+	except TypeError:
+		raise TypeError(bcolors.FAIL + "Invalid user_id" + bcolors.ENDC)
 	except ValueError:
 		if user_exists == True:
 			raise ValueError(bcolors.FAIL + "User has no url assosciated with account" + bcolors.ENDC)
 		else:
 			raise ValueError(bcolors.FAIL + "Invalid User ID" + bcolors.ENDC)
-		return False
+
+	except Exception as e:
+		print e
+		raise
 
 def parse_all_users():
 	#parses through all the users' sites
 	try:
-		db = connect()
+		db = database()
 		data = []
 		
 		#gets a list of all user ids
 		for i in db.users.find():
-			parse_user_site(i.get("_id"))
-
-		
+			try:
+				parse_user_site(i.get("_id"))
+			except Exception as e:
+				print e
+				pass
 		return True
 
-	except Exception, e:
+	except Exception as e:
 		print e
 		return False
 
 def delete_user_keywords(user_id):
 	#deletes all of a single user's keywords
 	try:
-		db = connect()
-		if type(user_id) != str:
+		db = database()
+		if type(user_id) != str and type(user_id) != unicode:
 			raise TypeError 
-		data = db.users.find({"_id" : user_id})
+		data = db.users.find_one({"_id" : user_id})
 		if data:
 			db.keywords_coll.delete_many({"user_id": user_id})
 		else:
 			raise ValueError	
 
-		return
+		print "User Entries Deleted"
+		return True
 
-	except TypeError:
-		raise TypeError(bcolors.FAIL + "Invalid Input. Enter a valid user id as a string to use this function" + bcolors.ENDC)
+	except TypeError, e:
+		print e
+		raise TypeError(bcolors.FAIL + "Invalid ID type" + bcolors.ENDC)
 		return False
 	except ValueError:
-		raise ValueError(bcolors.FAIL + "Invalid User ID" + bcolors.ENDC)
+		raise ValueError(bcolors.FAIL + "User with given ID not found" + bcolors.ENDC)
 		return False
 
 def delete_all_keywords():
 	#deletes all keywords of all users
 	try:
-		db = connect()
+		db = database()
 		
-		db.keywords_coll.delete_many({})
 		#deletes existing data
-		print "Entries Deleted"
+		db.keywords_coll.drop()
+		db.word_count.drop()
+		print "All Entries Deleted"
 		return True
 
-	except Exception, e:
+	except Exception as e:
 		print e
 		return False
 
@@ -287,6 +284,6 @@ def re_parse_all():
 		#parse all users
 		parse_all_users()
 
-	except Exception, e:
+	except Exception as e:
 		print e
 		return False
