@@ -1,9 +1,10 @@
-from crawler.administer import re_parse_all
+from crawler.administer import delete_all_keywords, parse_all_users
 
 try:
-	
-	if not re_parse_all()
-		raise Exception('ERROR: Reparse operation failed!')
+	if not delete_all_keywords():
+		raise Exception('ERROR: Delete Keywords operation failed!')
+	if not parse_all_users():
+		raise Exception('ERROR: Parse All Users operation failed!')
 
 except Exception, e:
 	sys.stderr.write(str(e))

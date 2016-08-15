@@ -27,22 +27,34 @@ class bcolors:
 	ENDC = '\033[0m'
 	OKBLUE = '\033[94m'
 
-# Helps remove XML tags from HTML document
 def _strip_tags(html):
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
+	"""
+	(str) --> str
 
-# Checks if param is number
+	Removes all the XML tags from the html text.
+	"""
+	s = MLStripper()
+	s.feed(html)
+	return s.get_data()
+
 def _is_number(value):
+	"""
+	(str) --> bool
+
+	Returns true if value is a number, false otherwise.
+	"""
 	try:
 		float(value)
 		return True
 	except ValueError:
 		return False
 
-# Checks how many numbers are in a word, to later filter out
 def _number_composition(word):
+	"""
+	(str) --> int
+
+	Checks how many characters are numbers in a word, to later filter out.
+	"""
 	length = len(word)
 	word = list(word)
 	number = 0
@@ -51,8 +63,12 @@ def _number_composition(word):
 			number += 1
 	return number
 
-# Download the .pdf resume and parse it
 def _get_pdf_content(url, page_nums=[0]):
+	"""
+	(str) --> list
+
+	Downloads the .pdf resume and parses it.
+	"""
 	resume = urllib.URLopener()
 	# Just in case, try opening the .pdf with
 	# the url found
@@ -169,8 +185,12 @@ def _get_pdf_content(url, page_nums=[0]):
 		print bcolors.FAIL + "Unable to parse pdf with given URL" + bcolors.ENDC
 		return []
 
-# Find the the .pdf link
 def _find_pdf(html, url):
+	"""
+	(str) --> str
+
+	Searches through the html for a pdf file.
+	"""
 	# If we find a .pdf in the html
 	# String, then try to find the
 	# entire link here
@@ -235,8 +255,12 @@ def _find_pdf(html, url):
 	else:
 		return False
 
-# Finds skills in the body
 def _find_skills(bodyStr):
+	"""
+	(str) --> array
+
+	Searches through the html and pdf for skills in a txt file.
+	"""
 	try:
 		if type(bodyStr) != str and type(bodyStr) != unicode:
 			raise TypeError
@@ -308,9 +332,12 @@ def _find_skills(bodyStr):
 				()
 	return skill_words
 
-
-# Grabs html of url & returns list of keywords
 def get_html(url):
+	"""
+	(str) --> list
+
+	Returns a list of all the words in the html.
+	"""
 	try:
 		if type(url) != str and type(url) != unicode:
 			raise TypeError
@@ -386,7 +413,7 @@ def get_html(url):
 		for i in lowerCase_html:
 			if i not in word_list and " " not in i and "" != i and _is_number(i) == False and len(i) <= 20 and len(i) > 2 and _number_composition(i) == 0:
 				word_list.append(i)
-		print word_list
+		#print word_list
 		return word_list
 
 
@@ -395,9 +422,12 @@ def get_html(url):
 		print e
 		return []
 
-# Grabs pdf in url's html & returns list of keywords
-### not grabbing everything
 def get_pdf(url):
+	"""
+	(str) --> list
+
+	Returns a list of all the words in the pdf.
+	"""
 	try:
 		if type(url) != str and type(url) != unicode:
 			raise TypeError

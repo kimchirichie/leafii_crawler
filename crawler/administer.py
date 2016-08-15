@@ -29,7 +29,10 @@ def get_all_urls():
 	return url_list
 
 def find_user_by_id(user_id):
-	#returns a user's info with their id
+	'''
+	(str) --> dict
+	Returns a user's info given their id
+	'''
 	try:
 		db = database()
 		if type(user_id) != str:
@@ -49,7 +52,10 @@ def find_user_by_id(user_id):
 		return False
 
 def find_user_by_email(email):
-	#returns a user's info with their email
+	'''
+	(str) --> dict
+	Returns a user's info given their email
+	'''
 	try:
 		db = database()
 		data = []
@@ -71,7 +77,10 @@ def find_user_by_email(email):
 		return False
 
 def find_user_by_name(name):
-	#returns a list of all user's who have the input name as their first or last name
+	'''
+	(str) --> list
+	Returns a list of users info given a name.
+	'''
 	try:
 		start_time = time.time()
 		
@@ -128,7 +137,10 @@ def find_user_by_name(name):
 		raise ValueError(bcolors.FAIL + "Name not found in database" + bcolors.ENDC)
 
 def parse_user_site(user_id):
-	#parses through a user's site 
+	'''
+	(str) --> bool
+	Parses a user's site given a user id.
+	'''
 	try:
 		start_time = time.time()
 		db = database()
@@ -148,21 +160,7 @@ def parse_user_site(user_id):
 
 		# there will be 2 types of tags,
 		# from website, and from pdf
-		try:
-			
-			#sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			#sock.settimeout(10)
-			#qsock = socket.create_connection(url_temp, timeout=10)
-			#socket.connect(url_temp)
-			#sock.settimeout(None)
-			#fileobj = sock.makefile('rb', 0)
-			#socket.gettimeout()
-			
-			tags_temp = get_html(url_temp) # this is all words from the html
-		except Exception:
-			print e
-			raise RuntimeError
-
+		tags_temp = get_html(url_temp) # this is all words from the html
 		tagsPDF_temp = get_pdf(url_temp) # this is all words from the pdf
 		keyword_list = []
 		for keyword in tags_temp:
@@ -248,7 +246,10 @@ def parse_user_site(user_id):
 		raise
 
 def parse_all_users():
-	#parses through all the users' sites
+	'''
+	() --> bool
+	Parse the sites of all users in database.
+	'''
 	try:
 		db = database()
 		#parses through every users' site
@@ -265,7 +266,10 @@ def parse_all_users():
 		return False
 
 def delete_user_keywords(user_id):
-	#deletes all of a single user's keywords
+	'''
+	(str) --> bool
+	Deletes all the keywords of a user, given an id.
+	'''
 	try:
 		db = database()
 		if type(user_id) != str and type(user_id) != unicode:
@@ -288,7 +292,10 @@ def delete_user_keywords(user_id):
 		return False
 
 def delete_all_keywords():
-	#deletes all keywords of all users
+	'''
+	() --> bool
+	Empties the keyword database for all users.
+	'''
 	try:
 		db = database()
 		
@@ -297,19 +304,6 @@ def delete_all_keywords():
 		db.word_count.drop()
 		print "All Entries Deleted"
 		return True
-
-	except Exception as e:
-		print e
-		return False
-
-def re_parse_all():
-	#deletes existing keywords and reparses through them all
-	try:
-		
-		#wipes existing keywords
-		delete_all_keywords()
-		#parse all users
-		parse_all_users()
 
 	except Exception as e:
 		print e
