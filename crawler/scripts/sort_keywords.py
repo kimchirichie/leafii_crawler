@@ -37,7 +37,6 @@ total = count_total_words()
 start_time2 = time.time()
 re_parse_all()
 time_taken2 = time.time() - start_time2
-#print bcolors.OKBLUE + "Now reparsing all users to update keyword weightage" + bcolors.ENDC
 
 #sorts the bottom 80% of keywords in descending order
 print calculate_keywords()

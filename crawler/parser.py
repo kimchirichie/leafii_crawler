@@ -41,7 +41,7 @@ def _is_number(value):
 	except ValueError:
 		return False
 
-### not sure what this is
+# Checks how many numbers are in a word, to later filter out
 def _number_composition(word):
 	length = len(word)
 	word = list(word)
@@ -181,7 +181,6 @@ def _find_pdf(html, url):
 		raise TypeError(bcolors.FAIL + "Invalid input. Make sure both input fields are string" + bcolors.ENDC)
 
 	if (".pdf" in html):
-		# print "PDF file was found"
 		loop = True
 
 		# Create a pivot point, from where
@@ -236,43 +235,6 @@ def _find_pdf(html, url):
 	else:
 		return False
 
-### not used
-def _find_degree(bodyStr):
-	
-	try:
-		if type(bodyStr) != str and type(bodyStr) != unicode:
-			raise TypeError
-	except TypeError:
-		raise TypeError(bcolors.FAIL + "bodyStr must be a string" + bcolors.ENDC)
-
-	db = database()
-	keywords_body = []
-
-	# find words that are matching with our degree vocabulary
-	#degreeFile = open("degree_lists.txt", "r")
-	data = []
-	degreeFile = []
-	for i in db.degree_coll.find():
-		data = data + [i]
-	#print data
-	for j in range(len(data)):
-		degreeFile = degreeFile + data[j].get("degree")
-	#print degreeFile
-
-	for i in degreeFile:
-		a = i
-		a = a.replace('\r', "")
-		a = a.replace('\n', "")
-		a = str(a)
-		# fixed formatting of vocabularies, it is unable to find if not fixed.
-		if a.lower() in bodyStr:
-			keywords_body = keywords_body + [a]
-		else:
-			#print "error in find_degree"
-			() # do nothing
-	#degreeFile.close()
-	return keywords_body
-
 # Finds skills in the body
 def _find_skills(bodyStr):
 	try:
@@ -285,7 +247,6 @@ def _find_skills(bodyStr):
 	skill_words = []
 
 	# find words that are matching with our skills vocabulary
-	#lstSkills = open("skills_list.txt", "r")
 	data = []
 	lstSkills = []
 	for i in db.skill_coll.find():
@@ -347,40 +308,9 @@ def _find_skills(bodyStr):
 				()
 	return skill_words
 
-### not used
-def _search_meta_keywords(keywordStr):
-	try:
-		if type(keywordStr) != str and type(keywordStr) != unicode:
-			raise TypeError
-	except TypeError:
-		raise TypeError(bcolors.FAIL + "keywordStr must be a string" + bcolors.ENDC)
-	keyword_contents = []
-	# print (keywordStr.find('meta name="keywords" '))
-	# Check if meta tags are in the html
-	# quotation within quotation...
-	if (keywordStr.find("meta name=\"keywords\"") != -1):
-		# find where the meta tags start, (position)
-		starting_k_contents = keywordStr.find("meta name=\"keywords\"") + 30
-
-		# find where the meta tags end, (position)
-		ending_k_contents = keywordStr.find(">", starting_k_contents)
-
-		temp_keywords = keywordStr[starting_k_contents:ending_k_contents - 2]
-
-		# replace and fix some of the formatting
-		temp_keywords = temp_keywords.replace("\"","")
-		temp_keywords = temp_keywords.split(",") # now temp_keywords are junks of keywords.
-		temp_keywords = temp_keywords.replace("", "")
-		keyword_contents = keyword_contents + temp_keywords
-		return keyword_contents
-
-	else:
-		# if meta tags are not found, return []
-		return keyword_contents
 
 # Grabs html of url & returns list of keywords
 def get_html(url):
-	#print url
 	try:
 		if type(url) != str and type(url) != unicode:
 			raise TypeError
@@ -397,22 +327,21 @@ def get_html(url):
 
 		# Grab the url, using the
 		# urllib2 package
-		usock = urllib2.urlopen(url)
+		usock = urllib2.urlopen(url, timeout = 5)
 		# Read in the html, via read()
 		html = usock.read()
 		lowerCase_html = html.lower()
-
+		# removes script and style tags and the sections in between them
 		lowerCase_html = re.sub('<script[^<]*</script>','',lowerCase_html)
 		lowerCase_html = re.sub('<script[^>]*>','',lowerCase_html)
 
 		lowerCase_html = re.sub('<style[^<]*</style>','',lowerCase_html)
 		lowerCase_html = re.sub('<style[^>]*>','',lowerCase_html)
-
+		# removed every other tag and the non usefull text
 		lowerCase_html = _strip_tags(lowerCase_html)
 
-		# Head tag - Grab the content in between
-		# the header tags
-		
+	
+		#removes punctuation that could confuse the program
 		lowerCase_html = lowerCase_html.replace("\"", "")
 		lowerCase_html = lowerCase_html.replace("'", "")
 		
@@ -447,15 +376,17 @@ def get_html(url):
 		lowerCase_html = lowerCase_html.replace("%", " ")
 		lowerCase_html = lowerCase_html.replace("$", " ")
 		
+		#removes any whitespace
 		lowerCase_html = lowerCase_html.strip(' \u')
 		lowerCase_html = re.sub('\s+', ' ', lowerCase_html)
+		#creates an array of all the words
 		lowerCase_html = lowerCase_html.split(' ')
 		word_list = []
 		
 		for i in lowerCase_html:
 			if i not in word_list and " " not in i and "" != i and _is_number(i) == False and len(i) <= 20 and len(i) > 2 and _number_composition(i) == 0:
 				word_list.append(i)
-		
+		print word_list
 		return word_list
 
 
@@ -481,11 +412,11 @@ def get_pdf(url):
 
 		url = url.lower()
 
-		usock = urllib2.urlopen(url)
+		usock = urllib2.urlopen(url, timeout = 5)
 		html = usock.read()
 		# obtain pdf_url from find_pdf function
 		pdf_url = _find_pdf(html, url)
-		print pdf_url
+		#print pdf_url
 		pdfSkills = []
 
 		# if pdf was not found, (== False)

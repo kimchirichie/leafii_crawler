@@ -53,7 +53,6 @@ def count_total_words():
 	for i in db.word_count.find({"total" : {'$gt' : 1} }):
 		counter += i.get("total")
 	
-	#print counter
 	return counter
 
 def count_distinct_words():
@@ -68,7 +67,6 @@ def count_distinct_words():
 	for i in db.word_count.find({"total" : {'$gt' : 1} }):
 		counter += 1
 	
-	#print counter
 	return counter
 
 def _average_count():
@@ -77,11 +75,8 @@ def _average_count():
 
 	Calculates the average number of repititions a words has in the database and returns an integer value.
 	"""
-	#print "total:"
 	total = float(count_total_words()) 
-	#print "distinct:"
 	distinct = float(count_distinct_words())
-	#print "average:"
 	average = total / distinct
 	print "Average: " + str(average)
 	return average
@@ -111,7 +106,6 @@ def calculate_keywords():
 	above the mean (bottom 80%)
 	"""
 	db = database()
-	#key_dict = db.word_count
 	data = []
 
 	for i in db.word_count.find():
@@ -132,16 +126,13 @@ def calculate_keywords():
 	std_list = []
 	for i in num_list:
 		std_list.append((avg_val-i)/std_dev)
-	#print std_list
-
+	
 	#filters out any values greater than 0.8416 standard deviations above the mean from num_list
 	for i in range(len(std_list)):
-		if std_list[i] < -0.8416:
+		if std_list[i] < -60.8416:
 			#assigns 0 value to values out of range
 			num_list[i] = 0
-	#print num_list	
-	
-	
+		
 	sorted_list = []
 	highest_val = max(num_list)
 	word_list = []
@@ -155,7 +146,5 @@ def calculate_keywords():
 				num_list[i] = 0
 				
 		highest_val = max(num_list)
-	#for i in sorted_list:
-	#	print i[0] + ": " + str(i[1])
 	print sorted_list
 	return sorted_list

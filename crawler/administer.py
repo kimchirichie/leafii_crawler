@@ -1,7 +1,9 @@
 from connector import database
 from parser import get_pdf, get_html
+from keyworder import increment_word, calculate_keywords, count_total_words
 import time
 import re
+import socket
 
 class bcolors:
 	HEAD = '\033[95m'
@@ -133,9 +135,7 @@ def parse_user_site(user_id):
 		if type(user_id) != str and type(user_id) != unicode:
 			raise TypeError
 		user_id = str(user_id)
-		# data is user data from user collection.
-		# we will be uploading our keywords to
-		# keywords collection.
+		
 		user = db.users.find_one({"_id" : user_id})
 		if user:
  			url_temp = user.get("profile").get("url")
@@ -148,8 +148,39 @@ def parse_user_site(user_id):
 
 		# there will be 2 types of tags,
 		# from website, and from pdf
-		tags_temp = get_html(url_temp) # this is keywords from the html
-		tagsPDF_temp = get_pdf(url_temp) # this is keywords from the pdf
+		try:
+			
+			#sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			#sock.settimeout(10)
+			#qsock = socket.create_connection(url_temp, timeout=10)
+			#socket.connect(url_temp)
+			#sock.settimeout(None)
+			#fileobj = sock.makefile('rb', 0)
+			#socket.gettimeout()
+			
+			tags_temp = get_html(url_temp) # this is all words from the html
+		except Exception:
+			print e
+			raise RuntimeError
+
+		tagsPDF_temp = get_pdf(url_temp) # this is all words from the pdf
+		keyword_list = []
+		for keyword in tags_temp:
+			try:
+				print bcolors.OKGREEN + ("Incremented: %s to %d" % (keyword, increment_word(keyword))) + bcolors.ENDC
+				keyword_list.append(keyword)
+			except Exception, e:
+				print bcolors.FAIL + "Invalid Entry" + bcolors.ENDC
+				print e
+
+		for keyword in tagsPDF_temp:
+			try:
+				if keyword not in keyword_list:
+					print bcolors.OKGREEN + ("Incremented: %s to %d" % (keyword, increment_word(keyword))) + bcolors.ENDC
+
+			except Exception, e:
+				print bcolors.FAIL + "Invalid Entry" + bcolors.ENDC
+				print e
 
 		seen = set()
 		tags = []
@@ -173,9 +204,8 @@ def parse_user_site(user_id):
 			for l in range(len(seperateTags)):
 				if seperateTags[l] not in seen2:
 					try:
-						keyword_weightage = db.word_count.find({"word" : seperateTags[l].lower()})[0].get("weightage")
 						seen2.add(seperateTags[l])
-						key_db = {"keyword": seperateTags[l].lower(), "type" : "web", "keyword_weightage": str(keyword_weightage), "url": url_temp, "user_id": user_id}
+						key_db = {"keyword": seperateTags[l].lower(), "type" : "web", "url": url_temp, "user_id": user_id}
 						key_count += 1
 						print key_db
 
@@ -189,9 +219,8 @@ def parse_user_site(user_id):
 			seperateTagspdf = tagsPDF[j].split(" ")
 			for h in range(len(seperateTagspdf)):
 				if seperateTagspdf[h] not in seen2:
-					keyword_weightage = db.word_count.find({"word" : seperateTags[l].lower()})[0].get("weightage")
 					seen2.add(seperateTagspdf[h])
-					key_db = {"keyword": seperateTagspdf[h].lower(), "type": "pdf", "keyword_weightage" : str(keyword_weightage), "url": url_temp, "user_id": user_id}
+					key_db = {"keyword": seperateTagspdf[h].lower(), "type": "pdf", "url": url_temp, "user_id": user_id}
 					key_count += 1
 					print key_db
 
@@ -201,11 +230,11 @@ def parse_user_site(user_id):
 
 		print ""
 		print bcolors.OKGREEN + ("Took %s seconds total" % (time.time() - start_time)) + bcolors.ENDC
-		print bcolors.OKGREEN + ("Went through %s" % user.get("profile.url")) + bcolors.ENDC
 		print bcolors.OKGREEN + "Generated " + str(key_count) + " keywords" + bcolors.ENDC
 		print bcolors.OKBLUE + "--------------------------------------------" + bcolors.ENDC + '\n'
 
-
+	except RuntimeError:
+		raise RuntimeError(bcolors.FAIL + "Site took too long to parse" + bcolors.ENDC)
 	except TypeError:
 		raise TypeError(bcolors.FAIL + "Invalid user_id" + bcolors.ENDC)
 	except ValueError:
@@ -222,9 +251,7 @@ def parse_all_users():
 	#parses through all the users' sites
 	try:
 		db = database()
-		data = []
-		
-		#gets a list of all user ids
+		#parses through every users' site
 		for i in db.users.find():
 			try:
 				parse_user_site(i.get("_id"))
