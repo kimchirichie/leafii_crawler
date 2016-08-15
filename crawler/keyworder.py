@@ -135,7 +135,6 @@ def calculate_keywords():
 	#print std_list
 
 	#filters out any values greater than 0.8416 standard deviations above the mean from num_list
-	filtered_list = []
 	for i in range(len(std_list)):
 		if std_list[i] < -0.8416:
 			#assigns 0 value to values out of range
@@ -156,6 +155,7 @@ def calculate_keywords():
 				num_list[i] = 0
 				
 		highest_val = max(num_list)
-	for i in sorted_list:
-		print i[0] + ": " + str(i[1])
+	#for i in sorted_list:
+	#	print i[0] + ": " + str(i[1])
+	print sorted_list
 	return sorted_list

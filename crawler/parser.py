@@ -449,7 +449,6 @@ def get_html(url):
 		
 		lowerCase_html = lowerCase_html.strip(' \u')
 		lowerCase_html = re.sub('\s+', ' ', lowerCase_html)
-		print lowerCase_html
 		lowerCase_html = lowerCase_html.split(' ')
 		word_list = []
 		
