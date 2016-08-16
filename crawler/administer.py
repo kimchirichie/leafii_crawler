@@ -196,6 +196,27 @@ def parse_user_site(user_id):
 
 		key_count = 0
 		# update the mongoDB with html keywords, with another id generated
+
+		###################################################################################################
+		location = db.users.find_one({"_id" : user_id}).get("profile").get("location").lower()
+		location = location.replace(",","")
+		location = location.replace("|","")
+		location = location.replace("/","")
+		location = location.strip(' \u')
+		location = re.sub('\s+', ' ', location)
+		location = location.split(" ")
+		firstName = db.users.find_one({"_id" : user_id}).get("profile").get("firstName").lower()
+		lastName = db.users.find_one({"_id" : user_id}).get("profile").get("lastName").lower()
+		title = db.users.find_one({"_id" : user_id}).get("profile").get("occupation").lower()
+		title = title.split(" ")
+		###################################################################################################
+		for i in location:
+			db.keywords_coll.insert({"keyword": i, "type" : "location", "url": url_temp, "user_id": user_id,})
+		db.keywords_coll.insert({"keyword": firstName, "type" : "name", "url": url_temp, "user_id": user_id,})
+		db.keywords_coll.insert({"keyword": lastName, "type" : "name", "url": url_temp, "user_id": user_id,})
+		for i in title:
+			db.keywords_coll.insert({"keyword": i, "type" : "title", "url": url_temp, "user_id": user_id,})
+		###################################################################################################
 		seen2 = set()
 		for k in range(len(tags)):
 			seperateTags = tags[k].split(" ")
@@ -203,7 +224,7 @@ def parse_user_site(user_id):
 				if seperateTags[l] not in seen2:
 					try:
 						seen2.add(seperateTags[l])
-						key_db = {"keyword": seperateTags[l].lower(), "type" : "web", "url": url_temp, "user_id": user_id}
+						key_db = {"keyword": seperateTags[l].lower(), "type" : "web", "url": url_temp, "user_id": user_id,}
 						key_count += 1
 						print key_db
 

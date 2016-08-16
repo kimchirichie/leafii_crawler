@@ -129,7 +129,7 @@ def calculate_keywords():
 	
 	#filters out any values greater than 0.8416 standard deviations above the mean from num_list
 	for i in range(len(std_list)):
-		if std_list[i] < -60.8416:
+		if std_list[i] < -0.8416:
 			#assigns 0 value to values out of range
 			num_list[i] = 0
 		
