@@ -198,16 +198,16 @@ def parse_user_site(user_id):
 		# update the mongoDB with html keywords, with another id generated
 
 		###################################################################################################
-		location = db.users.find_one({"_id" : user_id}).get("profile").get("location").lower()
+		location = str(db.users.find_one({"_id" : user_id}).get("profile").get("location")).lower()
 		location = location.replace(",","")
 		location = location.replace("|","")
 		location = location.replace("/","")
 		location = location.strip(' \u')
 		location = re.sub('\s+', ' ', location)
 		location = location.split(" ")
-		firstName = db.users.find_one({"_id" : user_id}).get("profile").get("firstName").lower()
-		lastName = db.users.find_one({"_id" : user_id}).get("profile").get("lastName").lower()
-		title = db.users.find_one({"_id" : user_id}).get("profile").get("occupation").lower()
+		firstName = str(db.users.find_one({"_id" : user_id}).get("profile").get("firstName")).lower()
+		lastName = str(db.users.find_one({"_id" : user_id}).get("profile").get("lastName")).lower()
+		title = str(db.users.find_one({"_id" : user_id}).get("profile").get("occupation")).lower()
 		title = title.split(" ")
 		###################################################################################################
 		for i in location:
