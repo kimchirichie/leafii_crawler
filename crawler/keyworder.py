@@ -26,6 +26,7 @@ def increment_word(word):
 
 	Adds one to the total number of a word unless it doesn't exist in the database, in which case it adds it, with an initial count of 1, returning an integer of it's count.
 	"""
+	print word
 	db = database()
 	word = str(word)
 	data = db.word_count.find_one({"word" : word})
@@ -36,9 +37,9 @@ def increment_word(word):
 	data = db.word_count.find_one({"word" : word})
 	if data:
 		count = data.get("total") + 1
-		#assigns a weightage that decreases the more time a word is incremented
-		db.word_count.update({ "word": word}, {"word": word, "total": count}) ### can this be more efficient without updating word? can weight be calculated onthego instead?
-	return count
+		
+		db.word_count.update({ "word": word}, {"word": word, "total": count})
+		return count
 
 def count_total_words():
 	"""

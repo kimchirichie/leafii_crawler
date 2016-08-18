@@ -199,6 +199,7 @@ def parse_user_site(user_id):
 		# update the mongoDB with html keywords, with another id generated
 
 		#since location is sometimes stored in json and other times in just a string need to try multiple methods
+		'''
 		location = db.users.find_one({"_id" : user_id}).get("profile").get("location")
 		try:
 			location = location['formatted_address']
@@ -226,7 +227,7 @@ def parse_user_site(user_id):
 		title = title.split(" ")
 		for i in title:
 			db.keywords_coll.insert({"keyword": i, "type" : "title", "url": url_temp, "user_id": user_id,})
-
+		'''
 		seen2 = set()
 		for k in range(len(tags)):
 			seperateTags = tags[k].split(" ")
