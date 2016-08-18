@@ -4,6 +4,7 @@ from keyworder import increment_word, calculate_keywords, count_total_words
 import time
 import re
 import socket
+import json
 
 class bcolors:
 	HEAD = '\033[95m'
@@ -197,26 +198,35 @@ def parse_user_site(user_id):
 		key_count = 0
 		# update the mongoDB with html keywords, with another id generated
 
-		###################################################################################################
-		location = str(db.users.find_one({"_id" : user_id}).get("profile").get("location")).lower()
-		location = location.replace(",","")
-		location = location.replace("|","")
-		location = location.replace("/","")
-		location = location.strip(' \u')
-		location = re.sub('\s+', ' ', location)
-		location = location.split(" ")
+		#since location is sometimes stored in json and other times in just a string need to try multiple methods
+		location = db.users.find_one({"_id" : user_id}).get("profile").get("location")
+		try:
+			location = location['formatted_address']
+			location = location.lower()
+			location = location.replace(",","")
+			location = location.replace("|","")
+			location = location.replace("/","")
+			location = location.strip(' \u')
+			location = re.sub('\s+', ' ', location)
+			location = location.split(" ")
+			for i in location:
+				db.keywords_coll.insert({"keyword": i, "type" : "location", "url": url_temp, "user_id": user_id,})
+		except:
+			try:
+				location = location.lower()
+				db.keywords_coll.insert({"keyword": location, "type" : "location", "url": url_temp, "user_id": user_id,})
+			except:
+				print "location cannot be determined"
+
 		firstName = str(db.users.find_one({"_id" : user_id}).get("profile").get("firstName")).lower()
+		db.keywords_coll.insert({"keyword": firstName, "type" : "name", "url": url_temp, "user_id": user_id,})
 		lastName = str(db.users.find_one({"_id" : user_id}).get("profile").get("lastName")).lower()
+		db.keywords_coll.insert({"keyword": lastName, "type" : "name", "url": url_temp, "user_id": user_id,})
 		title = str(db.users.find_one({"_id" : user_id}).get("profile").get("occupation")).lower()
 		title = title.split(" ")
-		###################################################################################################
-		for i in location:
-			db.keywords_coll.insert({"keyword": i, "type" : "location", "url": url_temp, "user_id": user_id,})
-		db.keywords_coll.insert({"keyword": firstName, "type" : "name", "url": url_temp, "user_id": user_id,})
-		db.keywords_coll.insert({"keyword": lastName, "type" : "name", "url": url_temp, "user_id": user_id,})
 		for i in title:
 			db.keywords_coll.insert({"keyword": i, "type" : "title", "url": url_temp, "user_id": user_id,})
-		###################################################################################################
+
 		seen2 = set()
 		for k in range(len(tags)):
 			seperateTags = tags[k].split(" ")
@@ -254,7 +264,8 @@ def parse_user_site(user_id):
 
 	except RuntimeError:
 		raise RuntimeError(bcolors.FAIL + "Site took too long to parse" + bcolors.ENDC)
-	except TypeError:
+	except TypeError, e:
+		print e
 		raise TypeError(bcolors.FAIL + "Invalid user_id" + bcolors.ENDC)
 	except ValueError:
 		if user_exists == True:
