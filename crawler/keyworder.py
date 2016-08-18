@@ -37,8 +37,7 @@ def increment_word(word):
 	if data:
 		count = data.get("total") + 1
 		#assigns a weightage that decreases the more time a word is incremented
-		weightage = (float(1) / float(count)) * 100
-		db.word_count.update({ "word": word}, {"word": word, "total": count, "weightage": weightage}) ### can this be more efficient without updating word? can weight be calculated onthego instead?
+		db.word_count.update({ "word": word}, {"word": word, "total": count}) ### can this be more efficient without updating word? can weight be calculated onthego instead?
 	return count
 
 def count_total_words():
