@@ -33,7 +33,8 @@ $ sudo pip install -r requirements.txt
 To use the crawler to parse localhost database:
 
 ```bash
-$ python -m crawler/scripts/reparse_all
+$ python -m crawler/scripts/reparse_all #in linux
+$ python scripts/reparse_all.py #in mac
 ```
 
 ***Note***: If you are running Windows, grab the .tar or .zip files, and extract the folder
