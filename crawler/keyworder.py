@@ -26,7 +26,6 @@ def increment_word(word):
 
 	Adds one to the total number of a word unless it doesn't exist in the database, in which case it adds it, with an initial count of 1, returning an integer of it's count.
 	"""
-	print word
 	db = database()
 	word = str(word)
 	data = db.word_count.find_one({"word" : word})
