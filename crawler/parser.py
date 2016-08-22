@@ -347,6 +347,7 @@ def get_html(url):
 		# If the url does not have
 		# "http://" then add the
 		# "http://" to the url
+		url_original = url
 		if not "http://" in url:
 			url = "http://" + url
 
@@ -358,6 +359,8 @@ def get_html(url):
 		# Read in the html, via read()
 		html = usock.read()
 		lowerCase_html = html.lower()
+
+		
 		# removes script and style tags and the sections in between them
 		lowerCase_html = re.sub('<script[^<]*</script>','',lowerCase_html)
 		lowerCase_html = re.sub('<script[^>]*>','',lowerCase_html)
@@ -463,3 +466,30 @@ def get_pdf(url):
 		print bcolors.FAIL + "Error parsing PDF" + bcolors.ENDC
 		print e
 		return []
+
+def get_title(url):
+	try:
+		url_original = url
+		if not "http://" in url:
+			url = "http://" + url
+
+		url = url.lower()
+
+		# Grab the url, using the
+		# urllib2 package
+		usock = urllib2.urlopen(url, timeout = 5)
+		# Read in the html, via read()
+		html = usock.read()
+		#gets content of title tag
+		titleTag = re.compile('<title(.*?)title>', re.DOTALL | re.IGNORECASE).findall(html)
+		if titleTag:
+			title = titleTag 
+		title = title[0]
+		title = title.replace(">", "")
+		title = title.replace("<", "")
+		title = title.replace("/", "")
+
+		return title
+
+	except Exception, e:
+		print e

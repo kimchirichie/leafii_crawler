@@ -1,5 +1,5 @@
 from connector import database
-from parser import get_pdf, get_html
+from parser import get_pdf, get_html, get_title
 from keyworder import increment_word, calculate_keywords, count_total_words
 import time
 import re
@@ -158,6 +158,11 @@ def parse_user_site(user_id):
 		print bcolors.OKGREEN + ("parsing through: " + url_temp) + bcolors.ENDC
 		user_id = user.get("_id")
 		
+
+		title = get_title(url_temp)
+		last_parsed = time.strftime("%c")
+
+		db.users.update({"profile.url" : url_temp}, { "$set": {"profile.title" : title, "profile.lastParsed" : last_parsed}},False,True)
 
 		# there will be 2 types of tags,
 		# from website, and from pdf
