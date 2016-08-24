@@ -10,6 +10,7 @@ import requests
 import urllib
 import urllib2
 import os
+import unicodedata as ud
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -481,14 +482,13 @@ def get_title(url):
 		# Read in the html, via read()
 		html = usock.read()
 		#gets content of title tag
-		titleTag = re.compile('<title(.*?)title>', re.DOTALL | re.IGNORECASE).findall(html)
+		titleTag = re.compile('<title(.*?)</title>', re.DOTALL | re.IGNORECASE).findall(html)
 		if titleTag:
 			title = titleTag 
-		title = title[0]
+		title = str(title[0])
 		title = title.replace(">", "")
-		title = title.replace("<", "")
-		title = title.replace("/", "")
-
+		h = HTMLParser()
+		title = (h.unescape(title))
 		return title
 
 	except Exception, e:
